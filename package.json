@@ -1,7 +1,7 @@
 {
-  "name": "@salesforce/plugin-template-sf",
-  "description": "A template repository for sf plugins",
-  "version": "1.1.14",
+  "name": "@salesforce/plugin-api",
+  "description": "A plugin to call API endpoints via CLI commands",
+  "version": "1.0.0",
   "author": "Salesforce",
   "bugs": "https://github.com/forcedotcom/cli/issues",
   "dependencies": {
@@ -31,7 +31,7 @@
     "/oclif.manifest.json",
     "/schemas"
   ],
-  "homepage": "https://github.com/salesforcecli/plugin-template-sf",
+  "homepage": "https://github.com/salesforcecli/plugin-api",
   "keywords": [
     "force",
     "salesforce",
@@ -52,13 +52,10 @@
       "@salesforce/plugin-command-reference"
     ],
     "topics": {
-      "hello": {
-        "description": "Commands to say hello."
-      }
     },
     "flexibleTaxonomy": true
   },
-  "repository": "salesforcecli/plugin-template-sf",
+  "repository": "salesforcecli/plugin-api",
   "scripts": {
     "build": "wireit",
     "clean": "sf-clean",
