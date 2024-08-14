@@ -13,7 +13,7 @@ import { execCmd, TestSession } from '@salesforce/cli-plugins-testkit';
 
 config.truncateThreshold = 0;
 
-const skipIfWindows = os.arch() === 'Win32' ? describe.skip : describe;
+const skipIfWindows = os.platform() === 'win32' ? describe.skip : describe;
 
 //         windows NUTs have been failing with
 //        URL No Longer Exists</span></td></tr>
