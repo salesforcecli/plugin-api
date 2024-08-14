@@ -16,6 +16,8 @@ describe('api:request:rest NUT', () => {
   let testSession: TestSession;
 
   before(async () => {
+    // eslint-disable-next-line no-console
+    console.log('start before');
     testSession = await TestSession.create({
       scratchOrgs: [
         {
@@ -34,8 +36,11 @@ describe('api:request:rest NUT', () => {
 
   describe('std out', () => {
     it('get result in json format', () => {
+      // eslint-disable-next-line no-console
+      console.log('start test');
       const result = execCmd("api request rest 'services/data/v60.0/limits'").shellOutput.stdout;
-      console.warn('res', result);
+      // eslint-disable-next-line no-console
+      console.log('res1', result);
       // make sure we got a JSON object back
       expect(Object.keys(JSON.parse(result) as Record<string, unknown>)).to.have.length;
     });
