@@ -35,6 +35,7 @@ describe('api:request:rest NUT', () => {
   describe('std out', () => {
     it('get result in json format', () => {
       const result = execCmd("api request rest 'services/data/v56.0/limits'").shellOutput.stdout;
+      console.warn('res', result);
       // make sure we got a JSON object back
       expect(Object.keys(JSON.parse(result) as Record<string, unknown>)).to.have.length;
     });
@@ -42,6 +43,8 @@ describe('api:request:rest NUT', () => {
     it('should pass headers', () => {
       const result = execCmd("api request rest 'services/data/v56.0/limits' -H 'Accept: application/xml'").shellOutput
         .stdout;
+      console.log('res', result);
+
       // the headers will change this to xml
       expect(result.startsWith('<?xml version="1.0" encoding="UTF-8"?><LimitsSnapshot>')).to.be.true;
     });
@@ -51,6 +54,8 @@ describe('api:request:rest NUT', () => {
     it('get result in json format', () => {
       const result = execCmd("api request rest 'services/data/v56.0/limits' --stream-to-file out.txt").shellOutput
         .stdout;
+      console.log('res', result);
+
       expect(result.trim()).to.equal('File saved to out.txt');
 
       const content = readFileSync(join(testSession.project.dir, 'out.txt'), 'utf-8');
@@ -62,6 +67,8 @@ describe('api:request:rest NUT', () => {
       const result = execCmd(
         "api request rest 'services/data/v56.0/limits' -H 'Accept: application/xml'  --stream-to-file out.txt"
       ).shellOutput.stdout;
+      console.log('res', result);
+
       expect(result.trim()).to.equal('File saved to out.txt');
 
       const content = readFileSync(join(testSession.project.dir, 'out.txt'), 'utf-8');
