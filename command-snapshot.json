@@ -1,6 +1,14 @@
 [
   {
     "alias": [],
+    "command": "api:request:graphql",
+    "flagAliases": [],
+    "flagChars": ["S", "i", "o"],
+    "flags": ["body", "flags-dir", "include", "json", "stream-to-file", "target-org"],
+    "plugin": "@salesforce/plugin-api"
+  },
+  {
+    "alias": [],
     "command": "api:request:rest",
     "flagAliases": [],
     "flagChars": ["H", "S", "X", "i", "o"],

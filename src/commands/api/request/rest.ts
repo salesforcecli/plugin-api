@@ -67,7 +67,7 @@ export class Rest extends SfCommand<void> {
     }),
   };
 
-  private static getHeaders(keyValPair: string[]): Headers {
+  public static getHeaders(keyValPair: string[]): Headers {
     const headers: { [key: string]: string } = {};
 
     for (const header of keyValPair) {

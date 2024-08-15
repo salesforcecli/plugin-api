@@ -107,43 +107,76 @@ sf plugins
 
 <!-- commands -->
 
-- [`sf hello world`](#sf-hello-world)
+- [`sf api request graphql`](#sf-api-request-graphql)
+- [`sf api request rest ENDPOINT`](#sf-api-request-rest-endpoint)
 
-## `sf hello world`
+## `sf api request graphql`
 
-Say hello.
+Summary of a command.
 
 ```
 USAGE
-  $ sf hello world [--json] [--flags-dir <value>] [-n <value>]
+  $ sf api request graphql -o <value> --body file [--json] [--flags-dir <value>] [-S Example: report.xlsx | -i]
 
 FLAGS
-  -n, --name=<value>  [default: World] The name of the person you'd like to say hello to.
+  -S, --stream-to-file=Example: report.xlsx  Stream responses to a file.
+  -i, --include                              Include the HTTP response status and headers in the output.
+  -o, --target-org=<value>                   (required) Username or alias of the target org. Not required if the
+                                             `target-org` configuration variable is already set.
+      --body=file                            (required) File to use as the body for the request. Specify "-" to read
+                                             from standard input.
 
 GLOBAL FLAGS
   --flags-dir=<value>  Import flag values from a directory.
   --json               Format output as json.
 
 DESCRIPTION
-  Say hello.
+  Summary of a command.
 
-  Say hello either to the world or someone you know.
+  More information about a command. Don't repeat the summary.
 
 EXAMPLES
-  Say hello to the world:
-
-    $ sf hello world
-
-  Say hello to someone you know:
-
-    $ sf hello world --name Astro
-
-FLAG DESCRIPTIONS
-  -n, --name=<value>  The name of the person you'd like to say hello to.
-
-    This person can be anyone in the world!
+  $ sf api request graphql
 ```
 
-_See code: [src/commands/hello/world.ts](https://github.com/salesforcecli/plugin-template-sf/blob/1.1.14/src/commands/hello/world.ts)_
+_See code: [src/commands/api/request/graphql.ts](https://github.com/salesforcecli/plugin-api/blob/v1.0.0/src/commands/api/request/graphql.ts)_
+
+## `sf api request rest ENDPOINT`
+
+Make an authenticated HTTP request to Salesforce REST API and print the response.
+
+```
+USAGE
+  $ sf api request rest ENDPOINT -o username [--flags-dir <value>] [-i | -S Example: report.xlsx] [-X
+    GET|POST|PUT|PATCH|HEAD|DELETE|OPTIONS|TRACE] [-H key:value...] [--body file]
+
+ARGUMENTS
+  ENDPOINT  Salesforce API endpoint
+
+FLAGS
+  -H, --header=key:value...                  HTTP header in "key:value" format.
+  -S, --stream-to-file=Example: report.xlsx  Stream responses to a file.
+  -X, --method=<option>                      [default: GET] HTTP method for the request.
+                                             <options: GET|POST|PUT|PATCH|HEAD|DELETE|OPTIONS|TRACE>
+  -i, --include                              Include the HTTP response status and headers in the output.
+  -o, --target-org=username                  (required) Username or alias of the target org. Not required if the
+                                             `target-org` configuration variable is already set.
+      --body=file                            File to use as the body for the request. Specify "-" to read from standard
+                                             input; specify "" for an empty body.
+
+GLOBAL FLAGS
+  --flags-dir=<value>  Import flag values from a directory.
+
+EXAMPLES
+  List information about limits in the org with alias "my-org":
+
+    $ sf api request rest 'services/data/v56.0/limits' --target-org my-org
+
+  Get the response in XML format by specifying the "Accept" HTTP header:
+
+    $ sf api request rest 'services/data/v56.0/limits' --target-org my-org --header 'Accept: application/xml',
+```
+
+_See code: [src/commands/api/request/rest.ts](https://github.com/salesforcecli/plugin-api/blob/v1.0.0/src/commands/api/request/rest.ts)_
 
 <!-- commandsstop -->
