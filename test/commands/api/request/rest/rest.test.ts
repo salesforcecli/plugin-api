@@ -13,7 +13,7 @@ import stripAnsi from 'strip-ansi';
 import { MockTestOrgData, TestContext } from '@salesforce/core/testSetup';
 import { sleep } from '@salesforce/kit';
 import nock = require('nock');
-import { Rest } from '../../../../src/commands/api/request/rest.js';
+import { Rest } from '../../../../../src/commands/api/request/rest.js';
 
 describe('rest', () => {
   const $$ = new TestContext();

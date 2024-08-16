@@ -12,7 +12,7 @@ import stripAnsi from 'strip-ansi';
 import { MockTestOrgData, TestContext } from '@salesforce/core/testSetup';
 import { sleep } from '@salesforce/kit';
 import nock = require('nock');
-import Graphql from '../../../../src/commands/api/request/graphql.js';
+import Graphql from '../../../../../src/commands/api/request/graphql.js';
 
 describe('graphql', () => {
   const $$ = new TestContext();
@@ -75,7 +75,7 @@ describe('graphql', () => {
   it('should run and return graphql query', async () => {
     nock(testOrg.instanceUrl).post('/services/data/v42.0/graphql').reply(200, serverResponse);
 
-    await Graphql.run(['--target-org', 'test@hub.com', '--body', 'query.txt']);
+    await Graphql.run(['--target-org', 'test@hub.com', '--body', 'standard.txt']);
 
     const output = stripAnsi(stdoutSpy.args.flat().join(''));
 
@@ -85,7 +85,7 @@ describe('graphql', () => {
   it('should redirect to file', async () => {
     nock(testOrg.instanceUrl).post('/services/data/v42.0/graphql').reply(200, serverResponse);
 
-    await Graphql.run(['--target-org', 'test@hub.com', '--body', 'query.txt', '--stream-to-file', 'myOutput1.txt']);
+    await Graphql.run(['--target-org', 'test@hub.com', '--body', 'standard.txt', '--stream-to-file', 'myOutput1.txt']);
 
     // gives it a second to resolve promises and close streams before we start asserting
     await sleep(1000);

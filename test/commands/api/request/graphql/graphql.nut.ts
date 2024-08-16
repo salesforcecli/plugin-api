@@ -24,47 +24,9 @@ describe('api:request:graphql NUT', () => {
           setDefault: true,
         },
       ],
-      project: { gitClone: 'https://github.com/trailheadapps/dreamhouse-lwc' },
+      project: { sourceDir: join('test', 'test-files', 'data-project') },
       devhubAuthStrategy: 'AUTO',
     });
-    fs.writeFileSync(
-      join(testSession.project.dir, 'standard.txt'),
-      `query accounts {
-  uiapi {
-    query {
-      Account {
-        edges {
-          node {
-            Id
-            Name {
-              value
-            }
-          }
-        }
-      }
-    }
-  }
-}
-`
-    );
-
-    fs.writeFileSync(
-      join(testSession.project.dir, 'noResults.txt'),
-      `query Address {
-  uiapi {
-    query {
-      Address {
-        edges {
-          node {
-            Id
-          }
-        }
-      }
-    }
-  }
-}
-`
-    );
   });
 
   after(async () => {
@@ -73,7 +35,8 @@ describe('api:request:graphql NUT', () => {
 
   describe('std out', () => {
     it('get result in json format', () => {
-      const result = execCmd('api request graphql --body standard.txt').shellOutput.stdout;
+      const result = execCmd(`api request graphql --body ${join(testSession.project.dir, 'standard.txt')}`).shellOutput
+        .stdout;
       // eslint-disable-next-line no-console
       console.log('res', util.inspect(result));
 
@@ -88,7 +51,8 @@ describe('api:request:graphql NUT', () => {
     });
 
     it('get no results correctly', () => {
-      const result = execCmd('api request graphql --body noResults.txt').shellOutput.stdout;
+      const result = execCmd(`api request graphql --body ${join(testSession.project.dir, 'noResults.txt')}`).shellOutput
+        .stdout;
       // eslint-disable-next-line no-console
       console.log('res', util.inspect(result));
       // make sure we got a JSON object back
@@ -103,7 +67,8 @@ describe('api:request:graphql NUT', () => {
 
   describe('stream-to-file', () => {
     it('get result in json format', () => {
-      execCmd('api request graphql --body standard.txt --stream-to-file out.txt').shellOutput.stdout;
+      execCmd(`api request graphql --body ${join(testSession.project.dir, 'standard.txt')} --stream-to-file out.txt`)
+        .shellOutput.stdout;
       // make sure we got a JSON object back
       const parsed = JSON.parse(fs.readFileSync(join(testSession.project.dir, 'out.txt'), 'utf8')) as Record<
         string,
@@ -117,7 +82,8 @@ describe('api:request:graphql NUT', () => {
     });
 
     it('get no results correctly', () => {
-      execCmd('api request graphql --body noResults.txt --stream-to-file empty.txt').shellOutput.stdout;
+      execCmd(`api request graphql --body ${join(testSession.project.dir, 'noResults.txt')} --stream-to-file empty.txt`)
+        .shellOutput.stdout;
 
       // make sure we got a JSON object back
       const parsed = JSON.parse(fs.readFileSync(join(testSession.project.dir, 'empty.txt'), 'utf8')) as Record<
