@@ -7,6 +7,7 @@
 
 import { join } from 'node:path';
 import fs from 'node:fs';
+import * as util from 'node:util';
 import { config, expect } from 'chai';
 import { execCmd, TestSession } from '@salesforce/cli-plugins-testkit';
 
@@ -73,6 +74,8 @@ describe('api:request:graphql NUT', () => {
   describe('std out', () => {
     it('get result in json format', () => {
       const result = execCmd('api request graphql --body standard.txt').shellOutput.stdout;
+      // eslint-disable-next-line no-console
+      console.log('res', util.inspect(result));
 
       // make sure we got a JSON object back
       const parsed = JSON.parse(result) as Record<string, unknown>;
@@ -86,7 +89,8 @@ describe('api:request:graphql NUT', () => {
 
     it('get no results correctly', () => {
       const result = execCmd('api request graphql --body noResults.txt').shellOutput.stdout;
-
+      // eslint-disable-next-line no-console
+      console.log('res', util.inspect(result));
       // make sure we got a JSON object back
       const parsed = JSON.parse(result) as Record<string, unknown>;
       expect(Object.keys(parsed)).to.have.length;
@@ -100,7 +104,6 @@ describe('api:request:graphql NUT', () => {
   describe('stream-to-file', () => {
     it('get result in json format', () => {
       execCmd('api request graphql --body standard.txt --stream-to-file out.txt').shellOutput.stdout;
-
       // make sure we got a JSON object back
       const parsed = JSON.parse(fs.readFileSync(join(testSession.project.dir, 'out.txt'), 'utf8')) as Record<
         string,
