@@ -7,7 +7,6 @@
 
 import { join } from 'node:path';
 import fs from 'node:fs';
-import * as util from 'node:util';
 import { config, expect } from 'chai';
 import { execCmd, TestSession } from '@salesforce/cli-plugins-testkit';
 
@@ -37,8 +36,6 @@ describe('api:request:graphql NUT', () => {
     it('get result in json format', () => {
       const result = execCmd(`api request graphql --body ${join(testSession.project.dir, 'standard.txt')}`).shellOutput
         .stdout;
-      // eslint-disable-next-line no-console
-      console.log('res', util.inspect(result));
 
       // make sure we got a JSON object back
       const parsed = JSON.parse(result) as Record<string, unknown>;
@@ -53,8 +50,6 @@ describe('api:request:graphql NUT', () => {
     it('get no results correctly', () => {
       const result = execCmd(`api request graphql --body ${join(testSession.project.dir, 'noResults.txt')}`).shellOutput
         .stdout;
-      // eslint-disable-next-line no-console
-      console.log('res', util.inspect(result));
       // make sure we got a JSON object back
       const parsed = JSON.parse(result) as Record<string, unknown>;
       expect(Object.keys(parsed)).to.have.length;
