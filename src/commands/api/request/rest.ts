@@ -4,15 +4,16 @@
  * Licensed under the BSD 3-Clause license.
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import { EOL } from 'node:os';
-import { createWriteStream } from 'node:fs';
-import got, { Headers } from 'got';
+import { createWriteStream, readFileSync, existsSync } from 'node:fs';
+import { join } from 'node:path';
+import got from 'got';
 import type { AnyJson } from '@salesforce/ts-types';
 import { ProxyAgent } from 'proxy-agent';
 import { Flags, SfCommand } from '@salesforce/sf-plugins-core';
-import { Messages, Org, SfError } from '@salesforce/core';
+import { Messages, Org, SFDX_HTTP_HEADERS, SfError } from '@salesforce/core';
 import { Args } from '@oclif/core';
 import ansis from 'ansis';
+import { getHeaders } from '../../../shared/methods.js';
 
 Messages.importMessagesDirectoryFromMetaUrl(import.meta.url);
 const messages = Messages.loadMessages('@salesforce/plugin-api', 'rest');
@@ -23,12 +24,7 @@ export class Rest extends SfCommand<void> {
   public static state = 'beta';
   public static enableJsonFlag = false;
   public static readonly flags = {
-    // TODO: getting a false positive from this eslint rule.
-    // summary is already set in the org flag.
-    // eslint-disable-next-line sf-plugin/flag-summary
-    'target-org': Flags.requiredOrg({
-      helpValue: 'username',
-    }),
+    'target-org': Flags.requiredOrg(),
     include: Flags.boolean({
       char: 'i',
       summary: messages.getMessage('flags.include.summary'),
@@ -67,45 +63,38 @@ export class Rest extends SfCommand<void> {
     }),
   };
 
-  private static getHeaders(keyValPair: string[]): Headers {
-    const headers: { [key: string]: string } = {};
-
-    for (const header of keyValPair) {
-      const [key, ...rest] = header.split(':');
-      const value = rest.join(':').trim();
-      if (!key || !value) {
-        throw new SfError(`Failed to parse HTTP header: "${header}".`, 'Failed To Parse HTTP Header', [
-          'Make sure the header is in a "key:value" format, e.g. "Accept: application/json"',
-        ]);
-      }
-      headers[key] = value;
-    }
-
-    return headers;
-  }
-
   public async run(): Promise<void> {
     const { flags, args } = await this.parse(Rest);
 
     const org = flags['target-org'];
     const streamFile = flags['stream-to-file'];
+    const headers = flags.header ? getHeaders(flags.header) : {};
+
+    const url = new URL(`${org.getField<string>(Org.Fields.INSTANCE_URL)}/${args.endpoint}`);
+    const body =
+      flags.method === 'GET'
+        ? undefined
+        : // if they've passed in a file name, check and read it
+        existsSync(join(process.cwd(), flags.body ?? ''))
+        ? readFileSync(join(process.cwd(), flags.body ?? ''))
+        : // otherwise it's a stdin, and we use it directly
+          flags.body;
 
     await org.refreshAuth();
-
-    const url = `${org.getField<string>(Org.Fields.INSTANCE_URL)}/${args.endpoint}`;
 
     const options = {
       agent: { https: new ProxyAgent() },
       method: flags.method,
       headers: {
+        ...SFDX_HTTP_HEADERS,
         Authorization: `Bearer ${
           // we don't care about apiVersion here, just need to get the access token.
           // eslint-disable-next-line sf-plugin/get-connection-with-version
           org.getConnection().getConnectionOptions().accessToken!
         }`,
-        ...(flags.header ? Rest.getHeaders(flags.header) : {}),
+        ...headers,
       },
-      body: flags.method === 'GET' ? undefined : flags.body,
+      body,
       throwHttpErrors: false,
       followRedirect: false,
     };
@@ -127,12 +116,10 @@ export class Rest extends SfCommand<void> {
 
       // Print HTTP response status and headers.
       if (flags.include) {
-        let httpInfo = `HTTP/${res.httpVersion} ${res.statusCode} ${EOL}`;
-
-        for (const [header] of Object.entries(res.headers)) {
-          httpInfo += `${ansis.blue.bold(header)}: ${res.headers[header] as string}${EOL}`;
-        }
-        this.log(httpInfo);
+        this.log(`HTTP/${res.httpVersion} ${res.statusCode}`);
+        Object.entries(res.headers).map(([header, value]) => {
+          this.log(`${ansis.blue.bold(header)}: ${Array.isArray(value) ? value.join(',') : value ?? '<undefined>'}`);
+        });
       }
 
       try {
