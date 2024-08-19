@@ -10,7 +10,26 @@ Make an authenticated HTTP request to Salesforce REST API and print the response
 
 - Get the response in XML format by specifying the "Accept" HTTP header:
 
-  <%= config.bin %> <%= command.id %> 'services/data/v56.0/limits' --target-org my-org --header 'Accept: application/xml',
+  <%= config.bin %> <%= command.id %> 'services/data/v56.0/limits' --target-org my-org --header 'Accept: application/xml'
+
+- POST to create an Account object
+
+  <%= config.bin %> <%= command.id %> '/services/data/v46.0/sobjects/account' --body "{\"Name\" : \"Account from REST API\",\"ShippingCity\" : \"Boise\"}" --method POST
+
+- or with a file 'info.json' containing
+
+```json
+{
+  "Name": "Demo",
+  "ShippingCity": "Boise"
+}
+```
+
+<%= config.bin %> <%= command.id %> '/services/data/v46.0/sobjects/account' --body info.json --method POST
+
+- Update object
+
+  <%= config.bin %> <%= command.id %> '/services/data/v46.0/sobjects/account/<Account ID>' --body "{\"BillingCity\": \"San Francisco\"}" --method PATCH
 
 # flags.include.summary
 
