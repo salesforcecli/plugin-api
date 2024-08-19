@@ -1,22 +1,41 @@
 # summary
 
-Summary of a command.
+Execute GraphQL statements
 
 # description
 
-More information about a command. Don't repeat the summary.
-
-# flags.name.summary
-
-Description of a flag.
-
-# flags.name.description
-
-More information about a flag. Don't repeat the summary.
+Run any valid GraphQL statement via the /graphql [API](https://developer.salesforce.com/docs/platform/graphql/guide/graphql-about.html)
 
 # examples
 
-- <%= config.bin %> <%= command.id %>
+- Runs the graphql query directly via the command line
+
+  <%= config.bin %> <%= command.id %> --body '{ "query": "query accounts { uiapi { query { Account { edges { node { Id \n Name { value } } } } } } }" }'
+
+- Runs a mutation to create an Account, with an `example.txt` file, containing
+
+```text
+mutation AccountExample{
+  uiapi {
+    AccountCreate(input: {
+      Account: {
+        Name: "Trailblazer Express"
+      }
+    }) {
+      Record {
+        Id
+        Name {
+          value
+        }
+      }
+    }
+  }
+}
+```
+
+<%= config.bin %> <%= command.id %> --body example.txt
+
+will create a new account returning specified fields (Id, Name)
 
 # flags.include.summary
 
@@ -32,4 +51,4 @@ Stream responses to a file.
 
 # flags.body.summary
 
-File to use as the body for the request. Specify "-" to read from standard input.
+File or content with GraphQL statement. Specify "-" to read from standard input.

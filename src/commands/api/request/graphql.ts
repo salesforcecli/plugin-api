@@ -6,10 +6,9 @@
  */
 
 import fs, { createWriteStream } from 'node:fs';
-import { EOL } from 'node:os';
 import * as os from 'node:os';
 import { SfCommand, Flags } from '@salesforce/sf-plugins-core';
-import { Messages, Org, SfError } from '@salesforce/core';
+import { Messages, Org, SFDX_HTTP_HEADERS, SfError } from '@salesforce/core';
 import { ProxyAgent } from 'proxy-agent';
 import ansis from 'ansis';
 import got from 'got';
@@ -40,6 +39,7 @@ export default class Graphql extends SfCommand<void> {
     }),
     body: Flags.string({
       summary: messages.getMessage('flags.body.summary'),
+      allowStdin: true,
       helpValue: 'file',
       required: true,
     }),
@@ -50,20 +50,22 @@ export default class Graphql extends SfCommand<void> {
 
     const org = flags['target-org'];
     const streamFile = flags['stream-to-file'];
+    const apiVersion = await org.retrieveMaxApiVersion();
+    const body = fs.existsSync(flags.body)
+      ? `{"query":"${fs.readFileSync(flags.body, 'utf8').replaceAll(os.EOL, '\\n').replaceAll('"', '\\"')}"}`
+      : flags.body;
 
     await org.refreshAuth();
-    const apiVersion = await org.retrieveMaxApiVersion();
 
-    const url = `${org.getField<string>(Org.Fields.INSTANCE_URL)}/services/data/v${apiVersion}/graphql`;
+    const url = new URL(`${org.getField<string>(Org.Fields.INSTANCE_URL)}/services/data/v${apiVersion}/graphql`);
 
     const options = {
       agent: { https: new ProxyAgent() },
       headers: {
-        'Content-type': 'application/json',
+        ...SFDX_HTTP_HEADERS,
         Authorization: `Bearer ${org.getConnection(apiVersion).getConnectionOptions().accessToken!}`,
-        ...{},
       },
-      body: `{"query":"${fs.readFileSync(flags.body, 'utf8').replaceAll(os.EOL, '\\n')}", "variables": {}}`,
+      body,
       throwHttpErrors: false,
       followRedirect: false,
     };
@@ -85,12 +87,10 @@ export default class Graphql extends SfCommand<void> {
 
       // Print HTTP response status and headers.
       if (flags.include) {
-        let httpInfo = `HTTP/${res.httpVersion} ${res.statusCode} ${EOL}`;
-
-        for (const [header] of Object.entries(res.headers)) {
-          httpInfo += `${ansis.blue.bold(header)}: ${res.headers[header] as string}${EOL}`;
-        }
-        this.log(httpInfo);
+        this.log(`HTTP/${res.httpVersion} ${res.statusCode}`);
+        Object.entries(res.headers).map(([header, value]) => {
+          this.log(`${ansis.blue.bold(header)}: ${Array.isArray(value) ? value.join(',') : value ?? '<undefined>'}`);
+        });
       }
 
       try {
