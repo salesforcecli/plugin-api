@@ -135,7 +135,7 @@ export class Rest extends SfCommand<void> {
         this.styledJSON(JSON.parse(res.body) as AnyJson);
       } catch (err) {
         // If response body isn't JSON, just print it to stdout.
-        this.log(res.body);
+        this.log(res.body === '' ? `Server responded with an empty body, status code ${res.statusCode}` : res.body);
       }
 
       if (res.statusCode >= 400) {

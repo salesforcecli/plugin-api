@@ -6,15 +6,19 @@ Make an authenticated HTTP request to Salesforce REST API and print the response
 
 - List information about limits in the org with alias "my-org":
 
-  <%= config.bin %> <%= command.id %> 'services/data/v56.0/limits' --target-org my-org
+  <%= config.bin %> <%= command.id %> 'limits' --target-org my-org
+
+- List all endpoints
+
+  <%= config.bin %> <%= command.id %> '/'
 
 - Get the response in XML format by specifying the "Accept" HTTP header:
 
-  <%= config.bin %> <%= command.id %> 'services/data/v56.0/limits' --target-org my-org --header 'Accept: application/xml'
+  <%= config.bin %> <%= command.id %> 'limits' --target-org my-org --header 'Accept: application/xml'
 
 - POST to create an Account object
 
-  <%= config.bin %> <%= command.id %> '/services/data/v46.0/sobjects/account' --body "{\"Name\" : \"Account from REST API\",\"ShippingCity\" : \"Boise\"}" --method POST
+  <%= config.bin %> <%= command.id %> 'sobjects/account' --body "{\"Name\" : \"Account from REST API\",\"ShippingCity\" : \"Boise\"}" --method POST
 
 - or with a file 'info.json' containing
 
@@ -25,11 +29,11 @@ Make an authenticated HTTP request to Salesforce REST API and print the response
 }
 ```
 
-<%= config.bin %> <%= command.id %> '/services/data/v46.0/sobjects/account' --body info.json --method POST
+<%= config.bin %> <%= command.id %> 'sobjects/account' --body info.json --method POST
 
 - Update object
 
-  <%= config.bin %> <%= command.id %> '/services/data/v46.0/sobjects/account/<Account ID>' --body "{\"BillingCity\": \"San Francisco\"}" --method PATCH
+  <%= config.bin %> <%= command.id %> 'sobjects/account/<Account ID>' --body "{\"BillingCity\": \"San Francisco\"}" --method PATCH
 
 # flags.include.summary
 
