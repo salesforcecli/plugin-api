@@ -107,43 +107,59 @@ sf plugins
 
 <!-- commands -->
 
-- [`sf hello world`](#sf-hello-world)
+- [`sf api request rest ENDPOINT`](#sf-api-request-rest-endpoint)
 
-## `sf hello world`
+## `sf api request rest ENDPOINT`
 
-Say hello.
+Make an authenticated HTTP request to Salesforce REST API and print the response.
 
-```
+````
 USAGE
-  $ sf hello world [--json] [--flags-dir <value>] [-n <value>]
+  $ sf api request rest ENDPOINT -o <value> [--flags-dir <value>] [--api-version <value>] [-i | -S Example:
+    report.xlsx] [-X GET|POST|PUT|PATCH|HEAD|DELETE|OPTIONS|TRACE] [-H key:value...] [--body file]
+
+ARGUMENTS
+  ENDPOINT  Salesforce API endpoint
 
 FLAGS
-  -n, --name=<value>  [default: World] The name of the person you'd like to say hello to.
+  -H, --header=key:value...                  HTTP header in "key:value" format.
+  -S, --stream-to-file=Example: report.xlsx  Stream responses to a file.
+  -X, --method=<option>                      [default: GET] HTTP method for the request.
+                                             <options: GET|POST|PUT|PATCH|HEAD|DELETE|OPTIONS|TRACE>
+  -i, --include                              Include the HTTP response status and headers in the output.
+  -o, --target-org=<value>                   (required) Username or alias of the target org. Not required if the
+                                             `target-org` configuration variable is already set.
+      --api-version=<value>                  Override the api version used for api requests made by this command
+      --body=file                            File to use as the body for the request. Specify "-" to read from standard
+                                             input; specify "" for an empty body.
 
 GLOBAL FLAGS
   --flags-dir=<value>  Import flag values from a directory.
-  --json               Format output as json.
-
-DESCRIPTION
-  Say hello.
-
-  Say hello either to the world or someone you know.
 
 EXAMPLES
-  Say hello to the world:
+  - List information about limits in the org with alias "my-org":
+    sf api request rest 'limits' --target-org my-org
+  - List all endpoints
+    sf api request rest '/'
+  - Get the response in XML format by specifying the "Accept" HTTP header:
+    sf api request rest 'limits' --target-org my-org --header 'Accept: application/xml'
+  - POST to create an Account object
+    sf api request rest 'sobjects/account' --body "{\"Name\" : \"Account from REST API\",\"ShippingCity\" : \"Boise\"}" --method POST
+  - or with a file 'info.json' containing
+  ```json
+  {
+    "Name": "Demo",
+    "ShippingCity": "Boise"
+  }
+````
 
-    $ sf hello world
+$ sf api request rest 'sobjects/account' --body info.json --method POST
 
-  Say hello to someone you know:
+- Update object
+  sf api request rest 'sobjects/account/<Account ID>' --body "{\"BillingCity\": \"San Francisco\"}" --method PATCH
 
-    $ sf hello world --name Astro
-
-FLAG DESCRIPTIONS
-  -n, --name=<value>  The name of the person you'd like to say hello to.
-
-    This person can be anyone in the world!
 ```
 
-_See code: [src/commands/hello/world.ts](https://github.com/salesforcecli/plugin-template-sf/blob/1.1.14/src/commands/hello/world.ts)_
-
+_See code: [src/commands/api/request/rest.ts](https://github.com/salesforcecli/plugin-api/blob/0.1.0/src/commands/api/request/rest.ts)_
 <!-- commandsstop -->
+```
