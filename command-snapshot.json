@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "alias": [],
+    "command": "api:request:rest",
+    "flagAliases": [],
+    "flagChars": ["H", "S", "X", "i", "o"],
+    "flags": ["api-version", "body", "flags-dir", "header", "include", "method", "stream-to-file", "target-org"],
+    "plugin": "@salesforce/plugin-api"
+  }
+]

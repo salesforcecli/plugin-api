@@ -6,17 +6,21 @@
   "bugs": "https://github.com/forcedotcom/cli/issues",
   "dependencies": {
     "@oclif/core": "^4",
-    "@salesforce/core": "^8.2.7",
+    "@salesforce/core": "^8.4.0",
     "@salesforce/kit": "^3.2.1",
-    "@salesforce/sf-plugins-core": "^11.3.2"
+    "@salesforce/sf-plugins-core": "^11.3.2",
+    "ansis": "^3.3.2",
+    "got": "^13.0.0",
+    "proxy-agent": "^6.4.0"
   },
   "devDependencies": {
     "@oclif/plugin-command-snapshot": "^5.2.12",
     "@salesforce/cli-plugins-testkit": "^5.3.25",
     "@salesforce/dev-scripts": "^10.2.9",
-    "@salesforce/plugin-command-reference": "^3.1.13",
+    "@salesforce/plugin-command-reference": "^3.1.16",
     "eslint-plugin-sf-plugin": "^1.20.4",
-    "oclif": "^4.14.15",
+    "nock": "^13.5.4",
+    "oclif": "^4.14.19",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
   },
@@ -52,6 +56,9 @@
       "@salesforce/plugin-command-reference"
     ],
     "topics": {
+      "api": {
+        "description": "commands to send and interact with API calls"
+      }
     },
     "flexibleTaxonomy": true
   },

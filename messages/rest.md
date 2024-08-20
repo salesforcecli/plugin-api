@@ -1,0 +1,56 @@
+# summary
+
+Make an authenticated HTTP request to Salesforce REST API and print the response.
+
+# examples
+
+- List information about limits in the org with alias "my-org":
+
+  <%= config.bin %> <%= command.id %> 'limits' --target-org my-org
+
+- List all endpoints
+
+  <%= config.bin %> <%= command.id %> '/'
+
+- Get the response in XML format by specifying the "Accept" HTTP header:
+
+  <%= config.bin %> <%= command.id %> 'limits' --target-org my-org --header 'Accept: application/xml'
+
+- POST to create an Account object
+
+  <%= config.bin %> <%= command.id %> 'sobjects/account' --body "{\"Name\" : \"Account from REST API\",\"ShippingCity\" : \"Boise\"}" --method POST
+
+- or with a file 'info.json' containing
+
+```json
+{
+  "Name": "Demo",
+  "ShippingCity": "Boise"
+}
+```
+
+<%= config.bin %> <%= command.id %> 'sobjects/account' --body info.json --method POST
+
+- Update object
+
+  <%= config.bin %> <%= command.id %> 'sobjects/account/<Account ID>' --body "{\"BillingCity\": \"San Francisco\"}" --method PATCH
+
+# flags.include.summary
+
+Include the HTTP response status and headers in the output.
+
+# flags.method.summary
+
+HTTP method for the request.
+
+# flags.header.summary
+
+HTTP header in "key:value" format.
+
+# flags.stream-to-file.summary
+
+Stream responses to a file.
+
+# flags.body.summary
+
+File to use as the body for the request. Specify "-" to read from standard input; specify "" for an empty body.
