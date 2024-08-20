@@ -25,6 +25,7 @@ export class Rest extends SfCommand<void> {
   public static enableJsonFlag = false;
   public static readonly flags = {
     'target-org': Flags.requiredOrg(),
+    'api-version': Flags.orgApiVersion(),
     include: Flags.boolean({
       char: 'i',
       summary: messages.getMessage('flags.include.summary'),
@@ -70,7 +71,14 @@ export class Rest extends SfCommand<void> {
     const streamFile = flags['stream-to-file'];
     const headers = flags.header ? getHeaders(flags.header) : {};
 
-    const url = new URL(`${org.getField<string>(Org.Fields.INSTANCE_URL)}/${args.endpoint}`);
+    // replace first '/' to create valid URL
+    const endpoint = args.endpoint.startsWith('/') ? args.endpoint.replace('/', '') : args.endpoint;
+    const url = new URL(
+      `${org.getField<string>(Org.Fields.INSTANCE_URL)}/services/data/v${
+        flags['api-version'] ?? (await org.retrieveMaxApiVersion())
+      }/${endpoint}`
+    );
+
     const body =
       flags.method === 'GET'
         ? undefined
