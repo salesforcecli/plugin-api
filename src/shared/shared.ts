@@ -39,7 +39,10 @@ export async function sendAndPrintRequest(options: {
   this: SfCommand<unknown>;
 }): Promise<void> {
   if (options.streamFile) {
-    const responseStream = got.stream.post(options.url, options.options);
+    const responseStream = options.options.method
+      ? got.stream(options.url, options.options)
+      : // default to 'POST' if not specified
+        got.stream.post(options.url, options.options);
     const fileStream = createWriteStream(options.streamFile);
     responseStream.pipe(fileStream);
 
@@ -52,8 +55,10 @@ export async function sendAndPrintRequest(options: {
       throw SfError.wrap(error);
     });
   } else {
-    const res = await got.post(options.url, options.options);
-
+    const res = options.options.method
+      ? // default to 'POST' if not specified
+        await got(options.url, options.options)
+      : await got.post(options.url, options.options);
     // Print HTTP response status and headers.
     if (options.include) {
       options.this.log(`HTTP/${res.httpVersion} ${res.statusCode}`);

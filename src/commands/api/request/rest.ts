@@ -22,8 +22,8 @@ export class Rest extends SfCommand<void> {
   public static enableJsonFlag = false;
   public static readonly flags = {
     'target-org': Flags.requiredOrg(),
-    include: includeFlag,
     'api-version': Flags.orgApiVersion(),
+    include: includeFlag,
     method: Flags.option({
       options: ['GET', 'POST', 'PUT', 'PATCH', 'HEAD', 'DELETE', 'OPTIONS', 'TRACE'] as const,
       summary: messages.getMessage('flags.method.summary'),
