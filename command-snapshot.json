@@ -4,7 +4,7 @@
     "command": "api:request:graphql",
     "flagAliases": [],
     "flagChars": ["S", "i", "o"],
-    "flags": ["body", "flags-dir", "include", "json", "stream-to-file", "target-org"],
+    "flags": ["api-version", "body", "flags-dir", "include", "json", "stream-to-file", "target-org"],
     "plugin": "@salesforce/plugin-api"
   },
   {

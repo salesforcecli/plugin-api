@@ -32,7 +32,7 @@ export function getHeaders(keyValPair: string[]): Headers {
 }
 
 export async function sendAndPrintRequest(options: {
-  streamFile: string | undefined;
+  streamFile?: string;
   url: URL;
   options: Record<string, unknown>;
   include: boolean;

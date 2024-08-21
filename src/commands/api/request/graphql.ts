@@ -23,6 +23,7 @@ export default class Graphql extends SfCommand<void> {
 
   public static readonly flags = {
     'target-org': Flags.requiredOrg(),
+    'api-version': Flags.orgApiVersion(),
     'stream-to-file': streamToFileFlag,
     include: includeFlag,
     body: Flags.string({
@@ -38,14 +39,13 @@ export default class Graphql extends SfCommand<void> {
 
     const org = flags['target-org'];
     const streamFile = flags['stream-to-file'];
-    const apiVersion = await org.retrieveMaxApiVersion();
+    const apiVersion = flags['api-version'] ?? (await org.retrieveMaxApiVersion());
     const body = `{"query":"${(fs.existsSync(flags.body) ? fs.readFileSync(flags.body, 'utf8') : flags.body)
       .replaceAll(os.EOL, '\\n')
       .replaceAll('"', '\\"')}"}`;
+    const url = new URL(`${org.getField<string>(Org.Fields.INSTANCE_URL)}/services/data/v${apiVersion}/graphql`);
 
     await org.refreshAuth();
-
-    const url = new URL(`${org.getField<string>(Org.Fields.INSTANCE_URL)}/services/data/v${apiVersion}/graphql`);
 
     const options = {
       agent: { https: new ProxyAgent() },
