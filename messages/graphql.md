@@ -10,7 +10,7 @@ Run any valid GraphQL statement via the /graphql [API](https://developer.salesfo
 
 - Runs the graphql query directly via the command line
 
-  <%= config.bin %> <%= command.id %> --body '{ "query": "query accounts { uiapi { query { Account { edges { node { Id \n Name { value } } } } } } }" }'
+  <%= config.bin %> <%= command.id %> --body "query accounts { uiapi { query { Account { edges { node { Id \n Name { value } } } } } } }"
 
 - Runs a mutation to create an Account, with an `example.txt` file, containing
 
