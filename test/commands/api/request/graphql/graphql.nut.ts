@@ -47,6 +47,37 @@ describe('api:request:graphql NUT', () => {
       expect(parsed.errors).to.deep.equal([]);
     });
 
+    it('get result in json format --body', () => {
+      const result = execCmd(
+        'api request graphql --body "query accounts { uiapi { query { Account { edges { node { Id Name { value } } } } } } }"'
+      ).shellOutput.stdout;
+
+      // make sure we got a JSON object back
+      const parsed = JSON.parse(result) as Record<string, unknown>;
+
+      expect(Object.keys(parsed)).to.have.length;
+
+      // @ts-expect-error graphql response, just access what we need without typing it
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      expect(parsed.data!.uiapi.query.Account.edges.length).to.equal(1);
+      expect(parsed.errors).to.deep.equal([]);
+    });
+
+    it('no results from --body', () => {
+      const result = execCmd(
+        'api request graphql  --body "query Address {  uiapi {   query {Address { edges {  node {    Id }  }  }  } }}"'
+      ).shellOutput.stdout;
+
+      // make sure we got a JSON object back
+      const parsed = JSON.parse(result) as Record<string, unknown>;
+      expect(Object.keys(parsed)).to.have.length;
+
+      // @ts-expect-error graphql response, just access what we need without typing it
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      expect(parsed.data!.uiapi.query.Address.edges.length).to.equal(0);
+      expect(parsed.errors).to.deep.equal([]);
+    });
+
     it('get no results correctly', () => {
       const result = execCmd(`api request graphql --body ${join(testSession.project.dir, 'noResults.txt')}`).shellOutput
         .stdout;
