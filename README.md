@@ -59,48 +59,16 @@ sf plugins
 
 <!-- commands -->
 
-- [`sf api request graphql`](#sf-api-request-graphql)
 - [`sf api request rest ENDPOINT`](#sf-api-request-rest-endpoint)
-
-## `sf api request graphql`
-
-Summary of a command.
-
-```
-USAGE
-  $ sf api request graphql -o <value> --body file [--json] [--flags-dir <value>] [-S Example: report.xlsx | -i]
-
-FLAGS
-  -S, --stream-to-file=Example: report.xlsx  Stream responses to a file.
-  -i, --include                              Include the HTTP response status and headers in the output.
-  -o, --target-org=<value>                   (required) Username or alias of the target org. Not required if the
-                                             `target-org` configuration variable is already set.
-      --body=file                            (required) File to use as the body for the request. Specify "-" to read
-                                             from standard input.
-
-GLOBAL FLAGS
-  --flags-dir=<value>  Import flag values from a directory.
-  --json               Format output as json.
-
-DESCRIPTION
-  Summary of a command.
-
-  More information about a command. Don't repeat the summary.
-
-EXAMPLES
-  $ sf api request graphql
-```
-
-_See code: [src/commands/api/request/graphql.ts](https://github.com/salesforcecli/plugin-api/blob/v1.0.0/src/commands/api/request/graphql.ts)_
 
 ## `sf api request rest ENDPOINT`
 
 Make an authenticated HTTP request to Salesforce REST API and print the response.
 
-```
+````
 USAGE
-  $ sf api request rest ENDPOINT -o username [--flags-dir <value>] [-i | -S Example: report.xlsx] [-X
-    GET|POST|PUT|PATCH|HEAD|DELETE|OPTIONS|TRACE] [-H key:value...] [--body file]
+  $ sf api request rest ENDPOINT -o <value> [--flags-dir <value>] [--api-version <value>] [-i | -S Example:
+    report.xlsx] [-X GET|POST|PUT|PATCH|HEAD|DELETE|OPTIONS|TRACE] [-H key:value...] [--body file]
 
 ARGUMENTS
   ENDPOINT  Salesforce API endpoint
@@ -111,8 +79,9 @@ FLAGS
   -X, --method=<option>                      [default: GET] HTTP method for the request.
                                              <options: GET|POST|PUT|PATCH|HEAD|DELETE|OPTIONS|TRACE>
   -i, --include                              Include the HTTP response status and headers in the output.
-  -o, --target-org=username                  (required) Username or alias of the target org. Not required if the
+  -o, --target-org=<value>                   (required) Username or alias of the target org. Not required if the
                                              `target-org` configuration variable is already set.
+      --api-version=<value>                  Override the api version used for api requests made by this command
       --body=file                            File to use as the body for the request. Specify "-" to read from standard
                                              input; specify "" for an empty body.
 
@@ -120,15 +89,29 @@ GLOBAL FLAGS
   --flags-dir=<value>  Import flag values from a directory.
 
 EXAMPLES
-  List information about limits in the org with alias "my-org":
+  - List information about limits in the org with alias "my-org":
+    sf api request rest 'limits' --target-org my-org
+  - List all endpoints
+    sf api request rest '/'
+  - Get the response in XML format by specifying the "Accept" HTTP header:
+    sf api request rest 'limits' --target-org my-org --header 'Accept: application/xml'
+  - POST to create an Account object
+    sf api request rest 'sobjects/account' --body "{\"Name\" : \"Account from REST API\",\"ShippingCity\" : \"Boise\"}" --method POST
+  - or with a file 'info.json' containing
+  ```json
+  {
+    "Name": "Demo",
+    "ShippingCity": "Boise"
+  }
+````
 
-    $ sf api request rest 'services/data/v56.0/limits' --target-org my-org
+$ sf api request rest 'sobjects/account' --body info.json --method POST
 
-  Get the response in XML format by specifying the "Accept" HTTP header:
+- Update object
+  sf api request rest 'sobjects/account/<Account ID>' --body "{\"BillingCity\": \"San Francisco\"}" --method PATCH
 
-    $ sf api request rest 'services/data/v56.0/limits' --target-org my-org --header 'Accept: application/xml',
 ```
 
-_See code: [src/commands/api/request/rest.ts](https://github.com/salesforcecli/plugin-api/blob/v1.0.0/src/commands/api/request/rest.ts)_
-
+_See code: [src/commands/api/request/rest.ts](https://github.com/salesforcecli/plugin-api/blob/0.1.0/src/commands/api/request/rest.ts)_
 <!-- commandsstop -->
+```
