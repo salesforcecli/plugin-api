@@ -59,51 +59,111 @@ sf plugins
 
 <!-- commands -->
 
+- [`sf api request graphql`](#sf-api-request-graphql)
 - [`sf api request rest ENDPOINT`](#sf-api-request-rest-endpoint)
+
+## `sf api request graphql`
+
+Execute GraphQL statements
+
+````
+USAGE
+  $ sf api request graphql -o <value> --body file [--json] [--flags-dir <value>] [-S Example: report.xlsx | -i]
+
+FLAGS
+  -S, --stream-to-file=Example: report.xlsx  Stream responses to a file.
+  -i, --include                              Include the HTTP response status and headers in the output.
+  -o, --target-org=<value>                   (required) Username or alias of the target org. Not required if the
+                                             `target-org` configuration variable is already set.
+      --body=file                            (required) File or content with GraphQL statement. Specify "-" to read from
+                                             standard input.
+
+GLOBAL FLAGS
+  --flags-dir=<value>  Import flag values from a directory.
+  --json               Format output as json.
+
+DESCRIPTION
+  Execute GraphQL statements
+
+  Run any valid GraphQL statement via the /graphql
+  [API](https://developer.salesforce.com/docs/platform/graphql/guide/graphql-about.html)
+
+EXAMPLES
+  - Runs the graphql query directly via the command line
+    sf api request graphql --body '{ "query": "query accounts { uiapi { query { Account { edges { node { Id \n Name { value } } } } } } }" }'
+  - Runs a mutation to create an Account, with an `example.txt` file, containing
+  ```text
+  mutation AccountExample{
+    uiapi {
+      AccountCreate(input: {
+        Account: {
+          Name: "Trailblazer Express"
+        }
+      }) {
+        Record {
+          Id
+          Name {
+            value
+          }
+        }
+      }
+    }
+  }
+````
+
+$ sf api request graphql --body example.txt
+will create a new account returning specified fields (Id, Name)
+
+```
+
+_See code: [src/commands/api/request/graphql.ts](https://github.com/salesforcecli/plugin-api/blob/v1.1.0/src/commands/api/request/graphql.ts)_
 
 ## `sf api request rest ENDPOINT`
 
 Make an authenticated HTTP request to Salesforce REST API and print the response.
 
-````
+```
+
 USAGE
-  $ sf api request rest ENDPOINT -o <value> [--flags-dir <value>] [--api-version <value>] [-i | -S Example:
-    report.xlsx] [-X GET|POST|PUT|PATCH|HEAD|DELETE|OPTIONS|TRACE] [-H key:value...] [--body file]
+$ sf api request rest ENDPOINT -o <value> [--flags-dir <value>] [--api-version <value>] [-i | -S Example:
+report.xlsx] [-X GET|POST|PUT|PATCH|HEAD|DELETE|OPTIONS|TRACE] [-H key:value...] [--body file]
 
 ARGUMENTS
-  ENDPOINT  Salesforce API endpoint
+ENDPOINT Salesforce API endpoint
 
 FLAGS
-  -H, --header=key:value...                  HTTP header in "key:value" format.
-  -S, --stream-to-file=Example: report.xlsx  Stream responses to a file.
-  -X, --method=<option>                      [default: GET] HTTP method for the request.
-                                             <options: GET|POST|PUT|PATCH|HEAD|DELETE|OPTIONS|TRACE>
-  -i, --include                              Include the HTTP response status and headers in the output.
-  -o, --target-org=<value>                   (required) Username or alias of the target org. Not required if the
-                                             `target-org` configuration variable is already set.
-      --api-version=<value>                  Override the api version used for api requests made by this command
-      --body=file                            File to use as the body for the request. Specify "-" to read from standard
-                                             input; specify "" for an empty body.
+-H, --header=key:value... HTTP header in "key:value" format.
+-S, --stream-to-file=Example: report.xlsx Stream responses to a file.
+-X, --method=<option> [default: GET] HTTP method for the request.
+<options: GET|POST|PUT|PATCH|HEAD|DELETE|OPTIONS|TRACE>
+-i, --include Include the HTTP response status and headers in the output.
+-o, --target-org=<value> (required) Username or alias of the target org. Not required if the
+`target-org` configuration variable is already set.
+--api-version=<value> Override the api version used for api requests made by this command
+--body=file File to use as the body for the request. Specify "-" to read from standard
+input; specify "" for an empty body.
 
 GLOBAL FLAGS
-  --flags-dir=<value>  Import flag values from a directory.
+--flags-dir=<value> Import flag values from a directory.
 
 EXAMPLES
-  - List information about limits in the org with alias "my-org":
-    sf api request rest 'limits' --target-org my-org
-  - List all endpoints
-    sf api request rest '/'
-  - Get the response in XML format by specifying the "Accept" HTTP header:
-    sf api request rest 'limits' --target-org my-org --header 'Accept: application/xml'
-  - POST to create an Account object
-    sf api request rest 'sobjects/account' --body "{\"Name\" : \"Account from REST API\",\"ShippingCity\" : \"Boise\"}" --method POST
-  - or with a file 'info.json' containing
-  ```json
-  {
-    "Name": "Demo",
-    "ShippingCity": "Boise"
-  }
-````
+
+- List information about limits in the org with alias "my-org":
+  sf api request rest 'limits' --target-org my-org
+- List all endpoints
+  sf api request rest '/'
+- Get the response in XML format by specifying the "Accept" HTTP header:
+  sf api request rest 'limits' --target-org my-org --header 'Accept: application/xml'
+- POST to create an Account object
+  sf api request rest 'sobjects/account' --body "{\"Name\" : \"Account from REST API\",\"ShippingCity\" : \"Boise\"}" --method POST
+- or with a file 'info.json' containing
+
+```json
+{
+  "Name": "Demo",
+  "ShippingCity": "Boise"
+}
+```
 
 $ sf api request rest 'sobjects/account' --body info.json --method POST
 
@@ -112,6 +172,6 @@ $ sf api request rest 'sobjects/account' --body info.json --method POST
 
 ```
 
-_See code: [src/commands/api/request/rest.ts](https://github.com/salesforcecli/plugin-api/blob/0.1.0/src/commands/api/request/rest.ts)_
+_See code: [src/commands/api/request/rest.ts](https://github.com/salesforcecli/plugin-api/blob/v1.1.0/src/commands/api/request/rest.ts)_
 <!-- commandsstop -->
 ```
