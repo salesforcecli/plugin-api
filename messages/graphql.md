@@ -37,17 +37,9 @@ mutation AccountExample{
 
 will create a new account returning specified fields (Id, Name)
 
-# flags.include.summary
-
-Include the HTTP response status and headers in the output.
-
 # flags.header.summary
 
 HTTP header in "key:value" format.
-
-# flags.stream-to-file.summary
-
-Stream responses to a file.
 
 # flags.body.summary
 

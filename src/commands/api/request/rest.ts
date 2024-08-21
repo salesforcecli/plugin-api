@@ -4,16 +4,13 @@
  * Licensed under the BSD 3-Clause license.
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import { createWriteStream, readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
-import got from 'got';
-import type { AnyJson } from '@salesforce/ts-types';
 import { ProxyAgent } from 'proxy-agent';
 import { Flags, SfCommand } from '@salesforce/sf-plugins-core';
-import { Messages, Org, SFDX_HTTP_HEADERS, SfError } from '@salesforce/core';
+import { Messages, Org, SFDX_HTTP_HEADERS } from '@salesforce/core';
 import { Args } from '@oclif/core';
-import ansis from 'ansis';
-import { getHeaders } from '../../../shared/methods.js';
+import { getHeaders, includeFlag, sendAndPrintRequest, streamToFileFlag } from '../../../shared/shared.js';
 
 Messages.importMessagesDirectoryFromMetaUrl(import.meta.url);
 const messages = Messages.loadMessages('@salesforce/plugin-api', 'rest');
@@ -25,12 +22,7 @@ export class Rest extends SfCommand<void> {
   public static enableJsonFlag = false;
   public static readonly flags = {
     'target-org': Flags.requiredOrg(),
-    include: Flags.boolean({
-      char: 'i',
-      summary: messages.getMessage('flags.include.summary'),
-      default: false,
-      exclusive: ['stream-to-file'],
-    }),
+    include: includeFlag,
     method: Flags.option({
       options: ['GET', 'POST', 'PUT', 'PATCH', 'HEAD', 'DELETE', 'OPTIONS', 'TRACE'] as const,
       summary: messages.getMessage('flags.method.summary'),
@@ -43,12 +35,7 @@ export class Rest extends SfCommand<void> {
       char: 'H',
       multiple: true,
     }),
-    'stream-to-file': Flags.string({
-      summary: messages.getMessage('flags.stream-to-file.summary'),
-      helpValue: 'Example: report.xlsx',
-      char: 'S',
-      exclusive: ['include'],
-    }),
+    'stream-to-file': streamToFileFlag,
     body: Flags.string({
       summary: messages.getMessage('flags.body.summary'),
       allowStdin: true,
@@ -99,40 +86,6 @@ export class Rest extends SfCommand<void> {
       followRedirect: false,
     };
 
-    if (streamFile) {
-      const responseStream = got.stream(url, options);
-      const fileStream = createWriteStream(streamFile);
-      responseStream.pipe(fileStream);
-
-      fileStream.on('finish', () => this.log(`File saved to ${streamFile}`));
-      fileStream.on('error', (error) => {
-        throw SfError.wrap(error);
-      });
-      responseStream.on('error', (error) => {
-        throw SfError.wrap(error);
-      });
-    } else {
-      const res = await got(url, options);
-
-      // Print HTTP response status and headers.
-      if (flags.include) {
-        this.log(`HTTP/${res.httpVersion} ${res.statusCode}`);
-        Object.entries(res.headers).map(([header, value]) => {
-          this.log(`${ansis.blue.bold(header)}: ${Array.isArray(value) ? value.join(',') : value ?? '<undefined>'}`);
-        });
-      }
-
-      try {
-        // Try to pretty-print JSON response.
-        this.styledJSON(JSON.parse(res.body) as AnyJson);
-      } catch (err) {
-        // If response body isn't JSON, just print it to stdout.
-        this.log(res.body);
-      }
-
-      if (res.statusCode >= 400) {
-        process.exitCode = 1;
-      }
-    }
+    await sendAndPrintRequest({ streamFile, url, options, include: flags.include, this: this });
   }
 }
