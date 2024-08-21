@@ -23,6 +23,7 @@ export class Rest extends SfCommand<void> {
   public static readonly flags = {
     'target-org': Flags.requiredOrg(),
     include: includeFlag,
+    'api-version': Flags.orgApiVersion(),
     method: Flags.option({
       options: ['GET', 'POST', 'PUT', 'PATCH', 'HEAD', 'DELETE', 'OPTIONS', 'TRACE'] as const,
       summary: messages.getMessage('flags.method.summary'),
@@ -57,7 +58,14 @@ export class Rest extends SfCommand<void> {
     const streamFile = flags['stream-to-file'];
     const headers = flags.header ? getHeaders(flags.header) : {};
 
-    const url = new URL(`${org.getField<string>(Org.Fields.INSTANCE_URL)}/${args.endpoint}`);
+    // replace first '/' to create valid URL
+    const endpoint = args.endpoint.startsWith('/') ? args.endpoint.replace('/', '') : args.endpoint;
+    const url = new URL(
+      `${org.getField<string>(Org.Fields.INSTANCE_URL)}/services/data/v${
+        flags['api-version'] ?? (await org.retrieveMaxApiVersion())
+      }/${endpoint}`
+    );
+
     const body =
       flags.method === 'GET'
         ? undefined

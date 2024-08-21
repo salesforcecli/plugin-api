@@ -48,15 +48,14 @@ skipIfWindows('api:request:rest NUT', () => {
 
   describe('std out', () => {
     it('get result in json format', () => {
-      const result = execCmd("api request rest 'services/data/v60.0/limits'").shellOutput.stdout;
+      const result = execCmd("api request rest 'limits'").shellOutput.stdout;
 
       // make sure we got a JSON object back
       expect(Object.keys(JSON.parse(result) as Record<string, unknown>)).to.have.length;
     });
 
     it('should pass headers', () => {
-      const result = execCmd("api request rest 'services/data/v60.0/limits' -H 'Accept: application/xml'").shellOutput
-        .stdout;
+      const result = execCmd("api request rest 'limits' -H 'Accept: application/xml'").shellOutput.stdout;
 
       // the headers will change this to xml
       expect(result.startsWith('<?xml version="1.0" encoding="UTF-8"?><LimitsSnapshot>')).to.be.true;
@@ -65,8 +64,7 @@ skipIfWindows('api:request:rest NUT', () => {
 
   describe('stream-to-file', () => {
     it('get result in json format', () => {
-      const result = execCmd("api request rest 'services/data/v60.0/limits' --stream-to-file out.txt").shellOutput
-        .stdout;
+      const result = execCmd("api request rest 'limits' --stream-to-file out.txt").shellOutput.stdout;
 
       expect(result.trim()).to.equal('File saved to out.txt');
 
@@ -76,9 +74,8 @@ skipIfWindows('api:request:rest NUT', () => {
     });
 
     it('should pass headers', () => {
-      const result = execCmd(
-        "api request rest 'services/data/v60.0/limits' -H 'Accept: application/xml'  --stream-to-file out.txt"
-      ).shellOutput.stdout;
+      const result = execCmd("api request rest 'limits' -H 'Accept: application/xml'  --stream-to-file out.txt")
+        .shellOutput.stdout;
 
       expect(result.trim()).to.equal('File saved to out.txt');
 
