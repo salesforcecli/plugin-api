@@ -68,13 +68,15 @@ Execute GraphQL statements
 
 ````
 USAGE
-  $ sf api request graphql -o <value> --body file [--json] [--flags-dir <value>] [-S Example: report.xlsx | -i]
+  $ sf api request graphql -o <value> --body file [--json] [--flags-dir <value>] [--api-version <value>] [-S Example:
+    report.xlsx | -i]
 
 FLAGS
   -S, --stream-to-file=Example: report.xlsx  Stream responses to a file.
   -i, --include                              Include the HTTP response status and headers in the output.
   -o, --target-org=<value>                   (required) Username or alias of the target org. Not required if the
                                              `target-org` configuration variable is already set.
+      --api-version=<value>                  Override the api version used for api requests made by this command
       --body=file                            (required) File or content with GraphQL statement. Specify "-" to read from
                                              standard input.
 
@@ -90,7 +92,7 @@ DESCRIPTION
 
 EXAMPLES
   - Runs the graphql query directly via the command line
-    sf api request graphql --body '{ "query": "query accounts { uiapi { query { Account { edges { node { Id \n Name { value } } } } } } }" }'
+    sf api request graphql --body "query accounts { uiapi { query { Account { edges { node { Id \n Name { value } } } } } } }"
   - Runs a mutation to create an Account, with an `example.txt` file, containing
   ```text
   mutation AccountExample{
@@ -116,7 +118,7 @@ will create a new account returning specified fields (Id, Name)
 
 ```
 
-_See code: [src/commands/api/request/graphql.ts](https://github.com/salesforcecli/plugin-api/blob/v1.1.0/src/commands/api/request/graphql.ts)_
+_See code: [src/commands/api/request/graphql.ts](https://github.com/salesforcecli/plugin-api/blob/1.2.0/src/commands/api/request/graphql.ts)_
 
 ## `sf api request rest ENDPOINT`
 
@@ -172,6 +174,6 @@ $ sf api request rest 'sobjects/account' --body info.json --method POST
 
 ```
 
-_See code: [src/commands/api/request/rest.ts](https://github.com/salesforcecli/plugin-api/blob/v1.1.0/src/commands/api/request/rest.ts)_
+_See code: [src/commands/api/request/rest.ts](https://github.com/salesforcecli/plugin-api/blob/1.2.0/src/commands/api/request/rest.ts)_
 <!-- commandsstop -->
 ```
