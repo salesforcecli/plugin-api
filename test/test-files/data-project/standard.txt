@@ -1,0 +1,16 @@
+query accounts {
+  uiapi {
+    query {
+      Account {
+        edges {
+          node {
+            Id
+            Name {
+              value
+            }
+          }
+        }
+      }
+    }
+  }
+}

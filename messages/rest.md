@@ -35,10 +35,6 @@ Make an authenticated HTTP request to Salesforce REST API and print the response
 
   <%= config.bin %> <%= command.id %> 'sobjects/account/<Account ID>' --body "{\"BillingCity\": \"San Francisco\"}" --method PATCH
 
-# flags.include.summary
-
-Include the HTTP response status and headers in the output.
-
 # flags.method.summary
 
 HTTP method for the request.
@@ -46,10 +42,6 @@ HTTP method for the request.
 # flags.header.summary
 
 HTTP header in "key:value" format.
-
-# flags.stream-to-file.summary
-
-Stream responses to a file.
 
 # flags.body.summary
 

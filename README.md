@@ -1,55 +1,7 @@
-**NOTE: This template for sf plugins is not yet official. Please consult with the Platform CLI team before using this template.**
-
-# plugin-template-sf
-
-[![NPM](https://img.shields.io/npm/v/@salesforce/plugin-template-sf.svg?label=@salesforce/plugin-template-sf)](https://www.npmjs.com/package/@salesforce/plugin-template-sf) [![Downloads/week](https://img.shields.io/npm/dw/@salesforce/plugin-template-sf.svg)](https://npmjs.org/package/@salesforce/plugin-template-sf) [![License](https://img.shields.io/badge/License-BSD%203--Clause-brightgreen.svg)](https://raw.githubusercontent.com/salesforcecli/plugin-template-sf/main/LICENSE.txt)
-
-## Using the template
-
-This repository provides a template for creating a plugin for the Salesforce CLI. To convert this template to a working plugin:
-
-1. Please get in touch with the Platform CLI team. We want to help you develop your plugin.
-2. Generate your plugin:
-
-   ```
-   sf plugins install dev
-   sf dev generate plugin
-
-   git init -b main
-   git add . && git commit -m "chore: initial commit"
-   ```
-
-3. Create your plugin's repo in the salesforcecli github org
-4. When you're ready, replace the contents of this README with the information you want.
-
-## Learn about `sf` plugins
-
-Salesforce CLI plugins are based on the [oclif plugin framework](https://oclif.io/docs/introduction). Read the [plugin developer guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_plugins.meta/sfdx_cli_plugins/cli_plugins_architecture_sf_cli.htm) to learn about Salesforce CLI plugin development.
-
-This repository contains a lot of additional scripts and tools to help with general Salesforce node development and enforce coding standards. You should familiarize yourself with some of the [node developer packages](#tooling) used by Salesforce. There is also a default circleci config using the [release management orb](https://github.com/forcedotcom/npm-release-management-orb) standards.
-
-Additionally, there are some additional tests that the Salesforce CLI will enforce if this plugin is ever bundled with the CLI. These test are included by default under the `posttest` script and it is required to keep these tests active in your plugin if you plan to have it bundled.
-
-### Tooling
-
-- [@salesforce/core](https://github.com/forcedotcom/sfdx-core)
-- [@salesforce/kit](https://github.com/forcedotcom/kit)
-- [@salesforce/sf-plugins-core](https://github.com/salesforcecli/sf-plugins-core)
-- [@salesforce/ts-types](https://github.com/forcedotcom/ts-types)
-- [@salesforce/ts-sinon](https://github.com/forcedotcom/ts-sinon)
-- [@salesforce/dev-config](https://github.com/forcedotcom/dev-config)
-- [@salesforce/dev-scripts](https://github.com/forcedotcom/dev-scripts)
-
-# Everything past here is only a suggestion as to what should be in your specific plugin's description
-
-This plugin is bundled with the [Salesforce CLI](https://developer.salesforce.com/tools/sfdxcli). For more information on the CLI, read the [getting started guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_intro.htm).
-
-We always recommend using the latest version of these commands bundled with the CLI, however, you can install a specific version or tag if needed.
-
 ## Install
 
 ```bash
-sf plugins install @salesforce/plugin-template-sf@x.y.z
+sf plugins install @salesforce/plugin-api
 ```
 
 ## Issues
@@ -107,51 +59,111 @@ sf plugins
 
 <!-- commands -->
 
+- [`sf api request graphql`](#sf-api-request-graphql)
 - [`sf api request rest ENDPOINT`](#sf-api-request-rest-endpoint)
+
+## `sf api request graphql`
+
+Execute GraphQL statements
+
+````
+USAGE
+  $ sf api request graphql -o <value> --body file [--json] [--flags-dir <value>] [-S Example: report.xlsx | -i]
+
+FLAGS
+  -S, --stream-to-file=Example: report.xlsx  Stream responses to a file.
+  -i, --include                              Include the HTTP response status and headers in the output.
+  -o, --target-org=<value>                   (required) Username or alias of the target org. Not required if the
+                                             `target-org` configuration variable is already set.
+      --body=file                            (required) File or content with GraphQL statement. Specify "-" to read from
+                                             standard input.
+
+GLOBAL FLAGS
+  --flags-dir=<value>  Import flag values from a directory.
+  --json               Format output as json.
+
+DESCRIPTION
+  Execute GraphQL statements
+
+  Run any valid GraphQL statement via the /graphql
+  [API](https://developer.salesforce.com/docs/platform/graphql/guide/graphql-about.html)
+
+EXAMPLES
+  - Runs the graphql query directly via the command line
+    sf api request graphql --body '{ "query": "query accounts { uiapi { query { Account { edges { node { Id \n Name { value } } } } } } }" }'
+  - Runs a mutation to create an Account, with an `example.txt` file, containing
+  ```text
+  mutation AccountExample{
+    uiapi {
+      AccountCreate(input: {
+        Account: {
+          Name: "Trailblazer Express"
+        }
+      }) {
+        Record {
+          Id
+          Name {
+            value
+          }
+        }
+      }
+    }
+  }
+````
+
+$ sf api request graphql --body example.txt
+will create a new account returning specified fields (Id, Name)
+
+```
+
+_See code: [src/commands/api/request/graphql.ts](https://github.com/salesforcecli/plugin-api/blob/v1.1.0/src/commands/api/request/graphql.ts)_
 
 ## `sf api request rest ENDPOINT`
 
 Make an authenticated HTTP request to Salesforce REST API and print the response.
 
-````
+```
+
 USAGE
-  $ sf api request rest ENDPOINT -o <value> [--flags-dir <value>] [--api-version <value>] [-i | -S Example:
-    report.xlsx] [-X GET|POST|PUT|PATCH|HEAD|DELETE|OPTIONS|TRACE] [-H key:value...] [--body file]
+$ sf api request rest ENDPOINT -o <value> [--flags-dir <value>] [--api-version <value>] [-i | -S Example:
+report.xlsx] [-X GET|POST|PUT|PATCH|HEAD|DELETE|OPTIONS|TRACE] [-H key:value...] [--body file]
 
 ARGUMENTS
-  ENDPOINT  Salesforce API endpoint
+ENDPOINT Salesforce API endpoint
 
 FLAGS
-  -H, --header=key:value...                  HTTP header in "key:value" format.
-  -S, --stream-to-file=Example: report.xlsx  Stream responses to a file.
-  -X, --method=<option>                      [default: GET] HTTP method for the request.
-                                             <options: GET|POST|PUT|PATCH|HEAD|DELETE|OPTIONS|TRACE>
-  -i, --include                              Include the HTTP response status and headers in the output.
-  -o, --target-org=<value>                   (required) Username or alias of the target org. Not required if the
-                                             `target-org` configuration variable is already set.
-      --api-version=<value>                  Override the api version used for api requests made by this command
-      --body=file                            File to use as the body for the request. Specify "-" to read from standard
-                                             input; specify "" for an empty body.
+-H, --header=key:value... HTTP header in "key:value" format.
+-S, --stream-to-file=Example: report.xlsx Stream responses to a file.
+-X, --method=<option> [default: GET] HTTP method for the request.
+<options: GET|POST|PUT|PATCH|HEAD|DELETE|OPTIONS|TRACE>
+-i, --include Include the HTTP response status and headers in the output.
+-o, --target-org=<value> (required) Username or alias of the target org. Not required if the
+`target-org` configuration variable is already set.
+--api-version=<value> Override the api version used for api requests made by this command
+--body=file File to use as the body for the request. Specify "-" to read from standard
+input; specify "" for an empty body.
 
 GLOBAL FLAGS
-  --flags-dir=<value>  Import flag values from a directory.
+--flags-dir=<value> Import flag values from a directory.
 
 EXAMPLES
-  - List information about limits in the org with alias "my-org":
-    sf api request rest 'limits' --target-org my-org
-  - List all endpoints
-    sf api request rest '/'
-  - Get the response in XML format by specifying the "Accept" HTTP header:
-    sf api request rest 'limits' --target-org my-org --header 'Accept: application/xml'
-  - POST to create an Account object
-    sf api request rest 'sobjects/account' --body "{\"Name\" : \"Account from REST API\",\"ShippingCity\" : \"Boise\"}" --method POST
-  - or with a file 'info.json' containing
-  ```json
-  {
-    "Name": "Demo",
-    "ShippingCity": "Boise"
-  }
-````
+
+- List information about limits in the org with alias "my-org":
+  sf api request rest 'limits' --target-org my-org
+- List all endpoints
+  sf api request rest '/'
+- Get the response in XML format by specifying the "Accept" HTTP header:
+  sf api request rest 'limits' --target-org my-org --header 'Accept: application/xml'
+- POST to create an Account object
+  sf api request rest 'sobjects/account' --body "{\"Name\" : \"Account from REST API\",\"ShippingCity\" : \"Boise\"}" --method POST
+- or with a file 'info.json' containing
+
+```json
+{
+  "Name": "Demo",
+  "ShippingCity": "Boise"
+}
+```
 
 $ sf api request rest 'sobjects/account' --body info.json --method POST
 
@@ -160,6 +172,6 @@ $ sf api request rest 'sobjects/account' --body info.json --method POST
 
 ```
 
-_See code: [src/commands/api/request/rest.ts](https://github.com/salesforcecli/plugin-api/blob/0.1.0/src/commands/api/request/rest.ts)_
+_See code: [src/commands/api/request/rest.ts](https://github.com/salesforcecli/plugin-api/blob/v1.1.0/src/commands/api/request/rest.ts)_
 <!-- commandsstop -->
 ```

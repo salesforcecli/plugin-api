@@ -1,0 +1,13 @@
+query Address {
+  uiapi {
+    query {
+      Address {
+        edges {
+          node {
+            Id
+          }
+        }
+      }
+    }
+  }
+}

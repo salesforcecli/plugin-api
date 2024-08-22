@@ -15,7 +15,7 @@ import { MockTestOrgData, TestContext } from '@salesforce/core/testSetup';
 import { sleep } from '@salesforce/kit';
 import nock = require('nock');
 import { stubUx } from '@salesforce/sf-plugins-core';
-import { Rest } from '../../../../src/commands/api/request/rest.js';
+import { Rest } from '../../../../../src/commands/api/request/rest.js';
 
 describe('rest', () => {
   const $$ = new TestContext();
