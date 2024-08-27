@@ -22,12 +22,10 @@ Make an authenticated HTTP request to Salesforce REST API and print the response
 
 - or with a file 'info.json' containing
 
-```json
-{
-  "Name": "Demo",
-  "ShippingCity": "Boise"
-}
-```
+  {
+    "Name": "Demo",
+    "ShippingCity": "Boise"
+  }
 
 <%= config.bin %> <%= command.id %> 'sobjects/account' --body info.json --method POST
 
