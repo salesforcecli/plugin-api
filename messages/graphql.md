@@ -14,24 +14,22 @@ Run any valid GraphQL statement via the /graphql [API](https://developer.salesfo
 
 - Runs a mutation to create an Account, with an `example.txt` file, containing
 
-```text
-mutation AccountExample{
-  uiapi {
-    AccountCreate(input: {
-      Account: {
-        Name: "Trailblazer Express"
-      }
-    }) {
-      Record {
-        Id
-        Name {
-          value
+  mutation AccountExample{
+    uiapi {
+      AccountCreate(input: {
+        Account: {
+          Name: "Trailblazer Express"
+        }
+      }) {
+        Record {
+          Id
+          Name {
+            value
+          }
         }
       }
     }
   }
-}
-```
 
 <%= config.bin %> <%= command.id %> --body example.txt
 
