@@ -1,7 +1,7 @@
 {
   "name": "@salesforce/plugin-api",
   "description": "A plugin to call API endpoints via CLI commands",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "author": "Salesforce",
   "bugs": "https://github.com/forcedotcom/cli/issues",
   "dependencies": {

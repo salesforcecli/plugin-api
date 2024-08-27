@@ -1,3 +1,9 @@
+## [1.2.1](https://github.com/salesforcecli/plugin-api/compare/1.2.0...1.2.1) (2024-08-27)
+
+### Bug Fixes
+
+- remove code block from examples ([0aa98ba](https://github.com/salesforcecli/plugin-api/commit/0aa98ba9a87870750be4d02c936be460ddb14cdc))
+
 # [1.2.0](https://github.com/salesforcecli/plugin-api/compare/1.1.0...1.2.0) (2024-08-22)
 
 ### Features
