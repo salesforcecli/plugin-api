@@ -4,7 +4,7 @@
  * Licensed under the BSD 3-Clause license.
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import fs, { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { ProxyAgent } from 'proxy-agent';
 import { Flags, SfCommand } from '@salesforce/sf-plugins-core';
@@ -63,7 +63,7 @@ export class Rest extends SfCommand<void> {
     const org = flags['target-org'];
     const streamFile = flags['stream-to-file'];
     const fileOptions = flags.file
-      ? (JSON.parse(fs.readFileSync(flags.file, 'utf8')) as {
+      ? (JSON.parse(readFileSync(flags.file, 'utf8')) as {
           body?: string;
           header?: string[];
           url?: string;
