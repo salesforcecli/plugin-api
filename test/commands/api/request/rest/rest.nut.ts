@@ -37,7 +37,7 @@ skipIfWindows('api:request:rest NUT', () => {
           setDefault: true,
         },
       ],
-      project: { gitClone: 'https://github.com/trailheadapps/dreamhouse-lwc' },
+      project: { sourceDir: join('test', 'test-files', 'data-project') },
       devhubAuthStrategy: 'AUTO',
     });
   });
@@ -52,6 +52,22 @@ skipIfWindows('api:request:rest NUT', () => {
 
       // make sure we got a JSON object back
       expect(Object.keys(JSON.parse(result) as Record<string, unknown>)).to.have.length;
+    });
+
+    it('can read from --file', () => {
+      const result = execCmd(`api request rest --file ${join(testSession.project.dir, 'rest.json')}`).shellOutput
+        .stdout;
+
+      expect(Object.keys(JSON.parse(result) as Record<string, unknown>)).to.have.length;
+    });
+
+    it('will override --file values with real flag values', () => {
+      const result = execCmd(
+        `api request rest --file ${join(testSession.project.dir, 'rest.json')} -H 'Accept:application/xml'`
+      ).shellOutput.stdout;
+
+      // overrides json spec in file, with xml header
+      expect(result.startsWith('<?xml version="1.0" encoding="UTF-8"?><LimitsSnapshot>')).to.be.true;
     });
 
     it('should pass headers', () => {

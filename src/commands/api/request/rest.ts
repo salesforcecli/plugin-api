@@ -4,11 +4,11 @@
  * Licensed under the BSD 3-Clause license.
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import { readFileSync, existsSync } from 'node:fs';
+import fs, { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { ProxyAgent } from 'proxy-agent';
 import { Flags, SfCommand } from '@salesforce/sf-plugins-core';
-import { Messages, Org, SFDX_HTTP_HEADERS } from '@salesforce/core';
+import { Messages, Org, SFDX_HTTP_HEADERS, SfError } from '@salesforce/core';
 import { Args } from '@oclif/core';
 import { getHeaders, includeFlag, sendAndPrintRequest, streamToFileFlag } from '../../../shared/shared.js';
 
@@ -36,18 +36,24 @@ export class Rest extends SfCommand<void> {
       char: 'H',
       multiple: true,
     }),
+    file: Flags.file({
+      summary: messages.getMessage('flags.file.summary'),
+      helpValue: 'file',
+      char: 'f',
+    }),
     'stream-to-file': streamToFileFlag,
     body: Flags.string({
       summary: messages.getMessage('flags.body.summary'),
       allowStdin: true,
       helpValue: 'file',
+      char: 'b',
     }),
   };
 
   public static args = {
-    endpoint: Args.string({
+    url: Args.string({
       description: 'Salesforce API endpoint',
-      required: true,
+      required: false,
     }),
   };
 
@@ -56,30 +62,50 @@ export class Rest extends SfCommand<void> {
 
     const org = flags['target-org'];
     const streamFile = flags['stream-to-file'];
-    const headers = flags.header ? getHeaders(flags.header) : {};
+    const fileOptions = flags.file
+      ? (JSON.parse(fs.readFileSync(flags.file, 'utf8')) as {
+          body?: string;
+          header?: string[];
+          url?: string;
+          method?: string;
+        })
+      : {};
 
+    if (!args.url && !fileOptions.url) {
+      throw new SfError("The url is required either in --file file's content or as an argument");
+    }
+
+    const headers = getHeaders(flags.header ?? fileOptions.header ?? []);
+    // the conditional above ensures we either have an arg or it's in the file
+    const specified = args.url ?? fileOptions.url!;
     // replace first '/' to create valid URL
-    const endpoint = args.endpoint.startsWith('/') ? args.endpoint.replace('/', '') : args.endpoint;
+    const endpoint = specified.startsWith('/') ? specified.replace('/', '') : specified;
     const url = new URL(
       `${org.getField<string>(Org.Fields.INSTANCE_URL)}/services/data/v${
         flags['api-version'] ?? (await org.retrieveMaxApiVersion())
       }/${endpoint}`
     );
 
-    const body =
-      flags.method === 'GET'
-        ? undefined
-        : // if they've passed in a file name, check and read it
-        existsSync(join(process.cwd(), flags.body ?? ''))
-        ? readFileSync(join(process.cwd(), flags.body ?? ''))
-        : // otherwise it's a stdin, and we use it directly
-          flags.body;
+    // because flags.method defaults to "GET" read from file first
+    const method = fileOptions.method ?? flags.method;
+
+    let body;
+    if (method !== 'GET') {
+      if (flags.body) {
+        body = existsSync(join(process.cwd(), flags.body))
+          ? readFileSync(join(process.cwd(), flags.body))
+          : // otherwise it's a stdin, and we use it directly
+            flags.body;
+      } else {
+        body = JSON.stringify(fileOptions.body);
+      }
+    }
 
     await org.refreshAuth();
 
     const options = {
       agent: { https: new ProxyAgent() },
-      method: flags.method,
+      method,
       headers: {
         ...SFDX_HTTP_HEADERS,
         Authorization: `Bearer ${
