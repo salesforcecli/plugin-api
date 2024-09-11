@@ -4,7 +4,7 @@
  * Licensed under the BSD 3-Clause license.
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import { readFileSync, existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ProxyAgent } from 'proxy-agent';
 import { Flags, SfCommand } from '@salesforce/sf-plugins-core';
@@ -14,6 +14,15 @@ import { getHeaders, includeFlag, sendAndPrintRequest, streamToFileFlag } from '
 
 Messages.importMessagesDirectoryFromMetaUrl(import.meta.url);
 const messages = Messages.loadMessages('@salesforce/plugin-api', 'rest');
+const MethodOptions = ['GET', 'POST', 'PUT', 'PATCH', 'HEAD', 'DELETE', 'OPTIONS', 'TRACE'] as const;
+
+type PostmanSchema = {
+  url: { raw: string } | string;
+  method: typeof MethodOptions;
+  description?: string;
+  header: string | Array<Record<string, string>>;
+  body: { mode: 'raw' | 'formdata'; raw: string; formdata: FormData };
+};
 
 export class Rest extends SfCommand<void> {
   public static readonly summary = messages.getMessage('summary');
@@ -25,10 +34,9 @@ export class Rest extends SfCommand<void> {
     'api-version': Flags.orgApiVersion(),
     include: includeFlag,
     method: Flags.option({
-      options: ['GET', 'POST', 'PUT', 'PATCH', 'HEAD', 'DELETE', 'OPTIONS', 'TRACE'] as const,
+      options: MethodOptions,
       summary: messages.getMessage('flags.method.summary'),
       char: 'X',
-      default: 'GET',
     })(),
     header: Flags.string({
       summary: messages.getMessage('flags.header.summary'),
@@ -62,22 +70,28 @@ export class Rest extends SfCommand<void> {
 
     const org = flags['target-org'];
     const streamFile = flags['stream-to-file'];
-    const fileOptions = flags.file
-      ? (JSON.parse(readFileSync(flags.file, 'utf8')) as {
-          body?: string;
-          header?: string[];
-          url?: string;
-          method?: string;
-        })
-      : {};
+    const fileOptions: PostmanSchema | undefined = flags.file
+      ? (JSON.parse(readFileSync(flags.file, 'utf8')) as PostmanSchema)
+      : undefined;
 
-    if (!args.url && !fileOptions.url) {
+    if (!args.url && !fileOptions?.url) {
       throw new SfError("The url is required either in --file file's content or as an argument");
     }
 
-    const headers = getHeaders(flags.header ?? fileOptions.header ?? []);
+    const headers = getHeaders(flags.header ?? []);
+    if (typeof fileOptions?.header === 'string') {
+      const [key, ...rest] = fileOptions.header.split(':');
+      headers[key] = rest.join(':').trim();
+    } else {
+      fileOptions?.header.map((header) => {
+        Object.entries(header).map((v) => {
+          headers[v[0]] = v[1];
+        });
+      });
+    }
+
     // the conditional above ensures we either have an arg or it's in the file
-    const specified = args.url ?? fileOptions.url!;
+    const specified: string | URL = args.url ?? (fileOptions?.url as { raw: string }).raw ?? fileOptions?.url;
     // replace first '/' to create valid URL
     const endpoint = specified.startsWith('/') ? specified.replace('/', '') : specified;
     const url = new URL(
@@ -87,7 +101,7 @@ export class Rest extends SfCommand<void> {
     );
 
     // because flags.method defaults to "GET" read from file first
-    const method = fileOptions.method ?? flags.method;
+    const method = flags.method ?? fileOptions?.method ?? 'GET';
 
     let body;
     if (method !== 'GET') {
@@ -97,7 +111,7 @@ export class Rest extends SfCommand<void> {
           : // otherwise it's a stdin, and we use it directly
             flags.body;
       } else {
-        body = JSON.stringify(fileOptions.body);
+        body = JSON.stringify(fileOptions?.body);
       }
     }
 
