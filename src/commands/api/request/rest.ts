@@ -4,8 +4,8 @@
  * Licensed under the BSD 3-Clause license.
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import { existsSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { readFileSync } from 'node:fs';
+
 import { ProxyAgent } from 'proxy-agent';
 import { Flags, SfCommand } from '@salesforce/sf-plugins-core';
 import { Messages, Org, SFDX_HTTP_HEADERS, SfError } from '@salesforce/core';
@@ -14,11 +14,11 @@ import { getHeaders, includeFlag, sendAndPrintRequest, streamToFileFlag } from '
 
 Messages.importMessagesDirectoryFromMetaUrl(import.meta.url);
 const messages = Messages.loadMessages('@salesforce/plugin-api', 'rest');
-const MethodOptions = ['GET', 'POST', 'PUT', 'PATCH', 'HEAD', 'DELETE', 'OPTIONS', 'TRACE'] as const;
+const methodOptions = ['GET', 'POST', 'PUT', 'PATCH', 'HEAD', 'DELETE', 'OPTIONS', 'TRACE'] as const;
 
 type PostmanSchema = {
   url: { raw: string } | string;
-  method: typeof MethodOptions;
+  method: typeof methodOptions;
   description?: string;
   header: string | Array<Record<string, string>>;
   body: { mode: 'raw' | 'formdata'; raw: string; formdata: FormData };
@@ -34,7 +34,7 @@ export class Rest extends SfCommand<void> {
     'api-version': Flags.orgApiVersion(),
     include: includeFlag,
     method: Flags.option({
-      options: MethodOptions,
+      options: methodOptions,
       summary: messages.getMessage('flags.method.summary'),
       char: 'X',
     })(),
@@ -83,7 +83,7 @@ export class Rest extends SfCommand<void> {
       const [key, ...rest] = fileOptions.header.split(':');
       headers[key] = rest.join(':').trim();
     } else {
-      fileOptions?.header.map((header) => {
+      (fileOptions?.header ?? []).map((header) => {
         Object.entries(header).map((v) => {
           headers[v[0]] = v[1];
         });
@@ -91,28 +91,20 @@ export class Rest extends SfCommand<void> {
     }
 
     // the conditional above ensures we either have an arg or it's in the file
-    const specified: string | URL = args.url ?? (fileOptions?.url as { raw: string }).raw ?? fileOptions?.url;
-    // replace first '/' to create valid URL
-    const endpoint = specified.startsWith('/') ? specified.replace('/', '') : specified;
+    const specified = args.url ?? (fileOptions?.url as { raw: string }).raw ?? fileOptions?.url;
     const url = new URL(
       `${org.getField<string>(Org.Fields.INSTANCE_URL)}/services/data/v${
         flags['api-version'] ?? (await org.retrieveMaxApiVersion())
-      }/${endpoint}`
+        // replace first '/' to create valid URL
+      }/${specified.replace(/\//y, '')}`
     );
 
     // because flags.method defaults to "GET" read from file first
     const method = flags.method ?? fileOptions?.method ?? 'GET';
-
-    let body;
-    if (method !== 'GET') {
-      if (flags.body) {
-        body = existsSync(join(process.cwd(), flags.body))
-          ? readFileSync(join(process.cwd(), flags.body))
-          : // otherwise it's a stdin, and we use it directly
-            flags.body;
-      } else {
-        body = JSON.stringify(fileOptions?.body);
-      }
+    // @ts-expect-error users _could_ put one of these in their file without knowing it's wrong - TS is smarter than users here :)
+    if (!methodOptions.includes(method)) {
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      throw new SfError(`"${method}" must be one of ${methodOptions.join(', ')}`);
     }
 
     await org.refreshAuth();
@@ -129,7 +121,7 @@ export class Rest extends SfCommand<void> {
         }`,
         ...headers,
       },
-      body,
+      body: method !== 'GET' ? (flags.body ? flags.body : JSON.stringify(fileOptions?.body)) : undefined,
       throwHttpErrors: false,
       followRedirect: false,
     };

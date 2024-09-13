@@ -14,20 +14,20 @@ Make an authenticated HTTP request to Salesforce REST API and print the response
 
 - Get the response in XML format by specifying the "Accept" HTTP header:
 
-  <%= config.bin %> <%= command.id %> 'limits' --target-org my-org --header 'Accept: application/xml'
+  <%= config.bin %> <%= command.id %> limits --target-org my-org --header 'Accept: application/xml'
 
 - POST to create an Account object
 
-  <%= config.bin %> <%= command.id %> 'sobjects/account' --body "{\"Name\" : \"Account from REST API\",\"ShippingCity\" : \"Boise\"}" --method POST
+  <%= config.bin %> <%= command.id %> sobjects/account --body "{\"Name\" : \"Account from REST API\",\"ShippingCity\" : \"Boise\"}" --method POST
 
-- or with a file 'info.json' containing
+- or with a file 'body.json' containing
 
   {
-    "Name": "Demo",
-    "ShippingCity": "Boise"
+  "Name": "Demo",
+  "ShippingCity": "Boise"
   }
 
-<%= config.bin %> <%= command.id %> 'sobjects/account' --body info.json --method POST
+cat body.json | <%= config.bin %> <%= command.id %> sobjects/account --method POST --body -
 
 - Update object
 
@@ -35,10 +35,11 @@ Make an authenticated HTTP request to Salesforce REST API and print the response
 
 - You can store every flag option as a parameter in a json file, with the following schema:
   {
-  body?: string;
-  header?: string[];
-  url?: string;
-  method?: string;
+  url: { raw: string } | string;
+  method: 'GET', 'POST', 'PUT', 'PATCH', 'HEAD', 'DELETE', 'OPTIONS', 'TRACE';
+  description?: string;
+  header: string | Array<Record<string, string>>;
+  body: { mode: 'raw' | 'formdata'; raw: string; formdata: FormData };
   }
 
   looking at the example above, we could store all of this information in the file, and change the command to
@@ -51,6 +52,9 @@ Make an authenticated HTTP request to Salesforce REST API and print the response
   "method": "PATCH",
   "body" : {"BillingCity": "Boise"}
   }
+
+- If you work in Postman a lot this schema may look familiar, because it shares as many similar properties as we could. Building an API call in postman then exporting and saving the file and executing via the CLI is now possible.
+-
 
 # flags.method.summary
 
