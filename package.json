@@ -58,7 +58,12 @@
     ],
     "topics": {
       "api": {
-        "description": "commands to send and interact with API calls"
+        "description": "Commands to interact with API calls.",
+        "subtopics": {
+          "request": {
+            "description": "Commands that make API requests."
+          }
+        }
       }
     },
     "flexibleTaxonomy": true

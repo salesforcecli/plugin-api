@@ -1,6 +1,12 @@
 # summary
 
-Make an authenticated HTTP request to Salesforce REST API and print the response.
+Make an authenticated HTTP request using the Salesforce REST API.
+
+# description
+
+When sending the HTTP request with the "--body" flag, you can specify the request directly at the command line or with a file that contains the request.
+
+For a full list of supported REST endpoints and resources, see https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_list.htm.
 
 # examples
 
@@ -8,28 +14,23 @@ Make an authenticated HTTP request to Salesforce REST API and print the response
 
   <%= config.bin %> <%= command.id %> 'limits' --target-org my-org
 
-- List all endpoints
+- List all endpoints in your default org; write the output to a file called "output.txt" and include the HTTP response status and headers:
 
-  <%= config.bin %> <%= command.id %> '/'
+  <%= config.bin %> <%= command.id %> '/' --stream-to-file output.txt --include
 
 - Get the response in XML format by specifying the "Accept" HTTP header:
 
-  <%= config.bin %> <%= command.id %> 'limits' --target-org my-org --header 'Accept: application/xml'
+  <%= config.bin %> <%= command.id %> 'limits' --header 'Accept: application/xml'
 
-- POST to create an Account object
+- Create an account record using the POST method; specify the request details directly in the "--body" flag:
 
   <%= config.bin %> <%= command.id %> 'sobjects/account' --body "{\"Name\" : \"Account from REST API\",\"ShippingCity\" : \"Boise\"}" --method POST
 
-- or with a file 'info.json' containing
+- Create an account record using the information in a file called "info.json":
 
-  {
-    "Name": "Demo",
-    "ShippingCity": "Boise"
-  }
+  <%= config.bin %> <%= command.id %> 'sobjects/account' --body info.json --method POST
 
-<%= config.bin %> <%= command.id %> 'sobjects/account' --body info.json --method POST
-
-- Update object
+- Update an account record using the PATCH method:
 
   <%= config.bin %> <%= command.id %> 'sobjects/account/<Account ID>' --body "{\"BillingCity\": \"San Francisco\"}" --method PATCH
 
@@ -43,4 +44,4 @@ HTTP header in "key:value" format.
 
 # flags.body.summary
 
-File to use as the body for the request. Specify "-" to read from standard input; specify "" for an empty body.
+File or content for the body of the HTTP request. Specify "-" to read from standard input or "" for an empty body.
