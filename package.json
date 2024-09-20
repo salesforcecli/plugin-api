@@ -11,6 +11,7 @@
     "@salesforce/sf-plugins-core": "^11.3.2",
     "@salesforce/ts-types": "^2.0.12",
     "ansis": "^3.3.2",
+    "form-data": "^4.0.0",
     "got": "^13.0.0",
     "proxy-agent": "^6.4.0"
   },
@@ -31,8 +32,6 @@
   "files": [
     "/lib",
     "/messages",
-    "/npm-shrinkwrap.json",
-    "/oclif.lock",
     "/oclif.manifest.json",
     "/schemas"
   ],

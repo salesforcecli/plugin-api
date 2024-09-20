@@ -4,12 +4,13 @@
  * Licensed under the BSD 3-Clause license.
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import { readFileSync } from 'node:fs';
-
+import { readFileSync, createReadStream } from 'node:fs';
+import { basename } from 'node:path';
 import { ProxyAgent } from 'proxy-agent';
 import { Flags, SfCommand } from '@salesforce/sf-plugins-core';
 import { Messages, Org, SFDX_HTTP_HEADERS, SfError } from '@salesforce/core';
 import { Args } from '@oclif/core';
+import FormData from 'form-data';
 import { getHeaders, includeFlag, sendAndPrintRequest, streamToFileFlag } from '../../../shared/shared.js';
 
 Messages.importMessagesDirectoryFromMetaUrl(import.meta.url);
@@ -20,8 +21,12 @@ type PostmanSchema = {
   url: { raw: string } | string;
   method: typeof methodOptions;
   description?: string;
-  header: string | Array<Record<string, string>>;
-  body: { mode: 'raw' | 'formdata'; raw: string; formdata: FormData };
+  header: string | Array<{ key: string; value: string; disabled?: boolean; description?: string }>;
+  body: {
+    mode: 'raw' | 'formdata';
+    raw: string;
+    formdata: Array<{ key: string; type: 'file' | 'text'; src?: string | string[]; value: string }>;
+  };
 };
 
 export class Rest extends SfCommand<void> {
@@ -81,12 +86,12 @@ export class Rest extends SfCommand<void> {
     const headers = getHeaders(flags.header ?? []);
     if (typeof fileOptions?.header === 'string') {
       const [key, ...rest] = fileOptions.header.split(':');
-      headers[key] = rest.join(':').trim();
+      headers[key.toLowerCase()] = rest.join(':').trim();
     } else {
       (fileOptions?.header ?? []).map((header) => {
-        Object.entries(header).map((v) => {
-          headers[v[0]] = v[1];
-        });
+        if (!header.disabled) {
+          headers[header.key.toLowerCase()] = header.value;
+        }
       });
     }
 
@@ -99,7 +104,6 @@ export class Rest extends SfCommand<void> {
       }/${specified.replace(/\//y, '')}`
     );
 
-    // because flags.method defaults to "GET" read from file first
     const method = flags.method ?? fileOptions?.method ?? 'GET';
     // @ts-expect-error users _could_ put one of these in their file without knowing it's wrong - TS is smarter than users here :)
     if (!methodOptions.includes(method)) {
@@ -108,6 +112,8 @@ export class Rest extends SfCommand<void> {
     }
 
     await org.refreshAuth();
+
+    const body = method !== 'GET' ? (flags.body ? flags.body : getBodyContents(fileOptions?.body)) : undefined;
 
     const options = {
       agent: { https: new ProxyAgent() },
@@ -121,11 +127,32 @@ export class Rest extends SfCommand<void> {
         }`,
         ...headers,
       },
-      body: method !== 'GET' ? (flags.body ? flags.body : JSON.stringify(fileOptions?.body)) : undefined,
+      body,
       throwHttpErrors: false,
       followRedirect: false,
     };
 
+    // eslint-disable-next-line no-console
+    console.log('op', options);
+
     await sendAndPrintRequest({ streamFile, url, options, include: flags.include, this: this });
   }
 }
+const getBodyContents = (body?: PostmanSchema['body']): string | FormData => {
+  if (body?.mode === 'raw') {
+    return body.raw;
+  } else {
+    // parse formdata
+    const form = new FormData();
+    body?.formdata.map((data) => {
+      if (data.type === 'text') {
+        form.append(data.key, data.value);
+      } else if (data.type === 'file' && typeof data.src === 'string') {
+        form.append(data.key, createReadStream(data.src), basename(data.src));
+      } else if (Array.isArray(data.src)) {
+        form.append(data.key, data.src);
+      }
+    });
+    return form;
+  }
+};

@@ -14,18 +14,23 @@ import got from 'got';
 
 Messages.importMessagesDirectoryFromMetaUrl(import.meta.url);
 const messages = Messages.loadMessages('@salesforce/plugin-api', 'shared');
-export function getHeaders(keyValPair: string[]): Headers {
+export function getHeaders(keyValPair: string[] | string): Headers {
   const headers: { [key: string]: string } = {};
 
-  for (const header of keyValPair) {
-    const [key, ...rest] = header.split(':');
-    const value = rest.join(':').trim();
-    if (!key || !value) {
-      throw new SfError(`Failed to parse HTTP header: "${header}".`, 'Failed To Parse HTTP Header', [
-        'Make sure the header is in a "key:value" format, e.g. "Accept: application/json"',
-      ]);
+  if (typeof keyValPair === 'string') {
+    const [key, ...rest] = keyValPair.split(':');
+    headers[key] = rest.join(':').trim();
+  } else {
+    for (const header of keyValPair) {
+      const [key, ...rest] = header.split(':');
+      const value = rest.join(':').trim();
+      if (!key || !value) {
+        throw new SfError(`Failed to parse HTTP header: "${header}".`, 'Failed To Parse HTTP Header', [
+          'Make sure the header is in a "key:value" format, e.g. "Accept: application/json"',
+        ]);
+      }
+      headers[key] = value;
     }
-    headers[key] = value;
   }
 
   return headers;
