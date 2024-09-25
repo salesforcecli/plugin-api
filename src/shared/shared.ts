@@ -11,26 +11,32 @@ import { Flags, SfCommand } from '@salesforce/sf-plugins-core';
 import ansis from 'ansis';
 import { AnyJson } from '@salesforce/ts-types';
 import got from 'got';
+import { PostmanSchema } from '../commands/api/request/rest.js';
 
 Messages.importMessagesDirectoryFromMetaUrl(import.meta.url);
 const messages = Messages.loadMessages('@salesforce/plugin-api', 'shared');
-export function getHeaders(keyValPair: string[] | string): Headers {
+export function getHeaders(keyValPair: string[] | PostmanSchema['header'] | undefined): Headers {
+  if (!keyValPair) return {};
   const headers: { [key: string]: string } = {};
 
   if (typeof keyValPair === 'string') {
     const [key, ...rest] = keyValPair.split(':');
-    headers[key] = rest.join(':').trim();
+    headers[key.toLowerCase()] = rest.join(':').trim();
   } else {
-    for (const header of keyValPair) {
-      const [key, ...rest] = header.split(':');
-      const value = rest.join(':').trim();
-      if (!key || !value) {
-        throw new SfError(`Failed to parse HTTP header: "${header}".`, 'Failed To Parse HTTP Header', [
-          'Make sure the header is in a "key:value" format, e.g. "Accept: application/json"',
-        ]);
+    keyValPair.map((header) => {
+      if (typeof header === 'string') {
+        const [key, ...rest] = header.split(':');
+        const value = rest.join(':').trim();
+        if (!key || !value) {
+          throw new SfError(`Failed to parse HTTP header: "${header}".`, 'Failed To Parse HTTP Header', [
+            'Make sure the header is in a "key:value" format, e.g. "Accept: application/json"',
+          ]);
+        }
+        headers[key.toLowerCase()] = value;
+      } else if (!header.disabled) {
+        headers[header.key.toLowerCase()] = header.value;
       }
-      headers[key] = value;
-    }
+    });
   }
 
   return headers;
@@ -60,10 +66,11 @@ export async function sendAndPrintRequest(options: {
       throw SfError.wrap(error);
     });
   } else {
-    const res = options.options.method
-      ? // default to 'POST' if not specified
-        await got(options.url, options.options)
-      : await got.post(options.url, options.options);
+    const res =
+      options.options.method !== 'POST'
+        ? // default to 'POST' if not specified
+          await got(options.url, options.options)
+        : await got.post(options.url, options.options);
     // Print HTTP response status and headers.
     if (options.include) {
       options.this.log(`HTTP/${res.httpVersion} ${res.statusCode}`);

@@ -5,7 +5,6 @@
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import { readFileSync, createReadStream } from 'node:fs';
-import { basename } from 'node:path';
 import { ProxyAgent } from 'proxy-agent';
 import { Flags, SfCommand } from '@salesforce/sf-plugins-core';
 import { Messages, Org, SFDX_HTTP_HEADERS, SfError } from '@salesforce/core';
@@ -17,7 +16,7 @@ Messages.importMessagesDirectoryFromMetaUrl(import.meta.url);
 const messages = Messages.loadMessages('@salesforce/plugin-api', 'rest');
 const methodOptions = ['GET', 'POST', 'PUT', 'PATCH', 'HEAD', 'DELETE', 'OPTIONS', 'TRACE'] as const;
 
-type PostmanSchema = {
+export type PostmanSchema = {
   url: { raw: string } | string;
   method: typeof methodOptions;
   description?: string;
@@ -79,23 +78,14 @@ export class Rest extends SfCommand<void> {
       ? (JSON.parse(readFileSync(flags.file, 'utf8')) as PostmanSchema)
       : undefined;
 
+    // validate that we have a URL to hit
     if (!args.url && !fileOptions?.url) {
       throw new SfError("The url is required either in --file file's content or as an argument");
     }
 
-    const headers = getHeaders(flags.header ?? []);
-    if (typeof fileOptions?.header === 'string') {
-      const [key, ...rest] = fileOptions.header.split(':');
-      headers[key.toLowerCase()] = rest.join(':').trim();
-    } else {
-      (fileOptions?.header ?? []).map((header) => {
-        if (!header.disabled) {
-          headers[header.key.toLowerCase()] = header.value;
-        }
-      });
-    }
+    const headers = getHeaders(flags.header ?? fileOptions?.header);
 
-    // the conditional above ensures we either have an arg or it's in the file
+    // the conditional above ensures we either have an arg or it's in the file - now we just have to find where the URL value is
     const specified = args.url ?? (fileOptions?.url as { raw: string }).raw ?? fileOptions?.url;
     const url = new URL(
       `${org.getField<string>(Org.Fields.INSTANCE_URL)}/services/data/v${
@@ -104,6 +94,7 @@ export class Rest extends SfCommand<void> {
       }/${specified.replace(/\//y, '')}`
     );
 
+    // default the method to GET here to allow flags to override, but not hinder reading from files, rather than setting the default in the flag definition
     const method = flags.method ?? fileOptions?.method ?? 'GET';
     // @ts-expect-error users _could_ put one of these in their file without knowing it's wrong - TS is smarter than users here :)
     if (!methodOptions.includes(method)) {
@@ -111,9 +102,13 @@ export class Rest extends SfCommand<void> {
       throw new SfError(`"${method}" must be one of ${methodOptions.join(', ')}`);
     }
 
-    await org.refreshAuth();
+    const body = method !== 'GET' ? flags.body ?? getBodyContents(fileOptions?.body) : undefined;
 
-    const body = method !== 'GET' ? (flags.body ? flags.body : getBodyContents(fileOptions?.body)) : undefined;
+    let formDataHeaders = {};
+    if (body instanceof FormData) {
+      // if it's a multi-part formdata request, those have extra headers
+      formDataHeaders = body.getHeaders();
+    }
 
     const options = {
       agent: { https: new ProxyAgent() },
@@ -126,21 +121,21 @@ export class Rest extends SfCommand<void> {
           org.getConnection().getConnectionOptions().accessToken!
         }`,
         ...headers,
+        ...formDataHeaders,
       },
       body,
       throwHttpErrors: false,
       followRedirect: false,
     };
 
-    // eslint-disable-next-line no-console
-    console.log('op', options);
+    await org.refreshAuth();
 
     await sendAndPrintRequest({ streamFile, url, options, include: flags.include, this: this });
   }
 }
 const getBodyContents = (body?: PostmanSchema['body']): string | FormData => {
   if (body?.mode === 'raw') {
-    return body.raw;
+    return JSON.stringify(body.raw);
   } else {
     // parse formdata
     const form = new FormData();
@@ -148,11 +143,12 @@ const getBodyContents = (body?: PostmanSchema['body']): string | FormData => {
       if (data.type === 'text') {
         form.append(data.key, data.value);
       } else if (data.type === 'file' && typeof data.src === 'string') {
-        form.append(data.key, createReadStream(data.src), basename(data.src));
+        form.append(data.key, createReadStream(data.src));
       } else if (Array.isArray(data.src)) {
         form.append(data.key, data.src);
       }
     });
+
     return form;
   }
 };
