@@ -1,0 +1,19 @@
+{
+  "header": [
+    {
+      "key": "content-type",
+      "value": "multipart/form-data",
+      "disabled": true
+    },
+    {
+      "key": "Accept",
+      "value": "application/json"
+    }
+  ],
+  "body": {
+    "mode": "raw"
+  },
+  "url": {
+    "raw": "/limits"
+  }
+}

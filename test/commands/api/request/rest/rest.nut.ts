@@ -76,6 +76,31 @@ skipIfWindows('api:request:rest NUT', () => {
       // the headers will change this to xml
       expect(result.startsWith('<?xml version="1.0" encoding="UTF-8"?><LimitsSnapshot>')).to.be.true;
     });
+
+    it('can store an entire request and send with --file', () => {
+      const res = execCmd(`api request rest --file ${join(testSession.project.dir, 'fileUpload.json')}`).shellOutput
+        .stdout;
+      // this prints as json to stdout, verify a few key/values
+      expect(res).to.include('"title": "standard.txt"');
+      expect(res).to.include('"name": "standard.txt"');
+    });
+
+    it('can send FormData', () => {
+      const res = execCmd(`api request rest --file ${join(testSession.project.dir, 'profilePicUpload.json')}`)
+        .shellOutput.stdout;
+      // this prints as json to stdout, verify a few key/valuess
+      expect(res).to.include('"fullEmailPhotoUrl"');
+      expect(res).to.include('"url": "/services/data/');
+      expect(res).to.include('"standardEmailPhotoUrl"');
+    });
+
+    it('can send raw data, with disabled headers', () => {
+      const res = execCmd(`api request rest --file ${join(testSession.project.dir, 'raw.json')}`).shellOutput.stdout;
+      // this prints as json to stdout, verify a few key/valuess
+      expect(res).to.include('"AnalyticsExternalDataSizeMB":');
+      expect(res).to.include('"SingleEmail"');
+      expect(res).to.include('"PermissionSets"');
+    });
   });
 
   describe('stream-to-file', () => {

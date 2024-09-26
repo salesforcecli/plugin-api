@@ -1,0 +1,24 @@
+{
+  "method": "POST",
+  "header": [
+    {
+      "key": "content-type",
+      "value": "multipart/form-data"
+    },
+    {
+      "key": "Accept",
+      "value": "application/json"
+    }
+  ],
+  "body": {
+    "mode": "formdata",
+    "formdata": [
+      {
+        "key": "fileData",
+        "type": "file",
+        "src": "standard.txt"
+      }
+    ]
+  },
+  "url": "connect/files/users/me"
+}

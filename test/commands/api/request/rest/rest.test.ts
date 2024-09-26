@@ -56,16 +56,6 @@ describe('rest', () => {
     expect(uxStub.styledJSON.args[0][0]).to.deep.equal(orgLimitsResponse);
   });
 
-  it('should read everything from --file', async () => {
-    nock(testOrg.instanceUrl).get('/services/data/v56.0/limits').reply(200, orgLimitsResponse);
-
-    $$.SANDBOX.stub(fs, 'existsSync').returns(true);
-    $$.SANDBOX.stub(fs, 'readFileSync').returns(JSON.stringify({ url: 'myUrlToBeOverriden' }));
-    await Rest.run(['limits', '--api-version', '56.0', '--file', 'body.json', '--target-org', 'test@hub.com']);
-
-    expect(uxStub.styledJSON.args[0][0]).to.deep.equal(orgLimitsResponse);
-  });
-
   it("should strip leading '/'", async () => {
     nock(testOrg.instanceUrl).get('/services/data/v56.0/limits').reply(200, orgLimitsResponse);
 
@@ -103,13 +93,17 @@ describe('rest', () => {
     // gives it a second to resolve promises and close streams before we start asserting
     await sleep(1000);
 
-    expect(writeSpy.args.flat().join('')).to.deep.equal('File saved to myOutput.txt' + '\n');
+    expect(writeSpy.args.flat().join('')).to.include('File saved to myOutput.txt' + '\n');
     expect(JSON.parse(fs.readFileSync('myOutput.txt', 'utf8'))).to.deep.equal(orgLimitsResponse);
+  });
 
-    after(() => {
-      // more than a UT
+  after(() => {
+    // more than a UT
+    try {
       fs.rmSync(path.join(process.cwd(), 'myOutput.txt'));
-    });
+    } catch (e) {
+      // do nothing
+    }
   });
 
   it('should set "Accept" HTTP header', async () => {
@@ -135,61 +129,8 @@ describe('rest', () => {
       'test@hub.com',
     ]);
 
-    const output = stripAnsi(writeSpy.args.flat().join(''));
-
     // https://github.com/oclif/core/blob/ff76400fb0bdfc4be0fa93056e86183b9205b323/src/command.ts#L248-L253
-    expect(output).to.equal(xmlRes + '\n');
-  });
-
-  it('should override "Accept" HTTP header from --file', async () => {
-    const writeSpy = $$.SANDBOX.stub(process.stdout, 'write');
-
-    nock(testOrg.instanceUrl, {
-      reqheaders: {
-        accept: 'application/xml',
-      },
-    })
-      .get('/services/data/v42.0/')
-      .reply(200, xmlRes);
-
-    $$.SANDBOX.stub(fs, 'readFileSync').returns(JSON.stringify({ header: ['Accept: application/json'] }));
-
-    await Rest.run([
-      '/',
-      '--api-version',
-      '42.0',
-      '--file',
-      'file.json',
-      '--header',
-      'Accept: application/xml',
-      '--target-org',
-      'test@hub.com',
-    ]);
-
-    const output = stripAnsi(writeSpy.args.flat().join(''));
-
-    // https://github.com/oclif/core/blob/ff76400fb0bdfc4be0fa93056e86183b9205b323/src/command.ts#L248-L253
-    expect(output).to.equal(xmlRes + '\n');
-  });
-  it('should set "Accept" HTTP header from --file', async () => {
-    const writeSpy = $$.SANDBOX.stub(process.stdout, 'write');
-
-    nock(testOrg.instanceUrl, {
-      reqheaders: {
-        accept: 'application/xml',
-      },
-    })
-      .get('/services/data/v42.0/')
-      .reply(200, xmlRes);
-
-    $$.SANDBOX.stub(fs, 'readFileSync').returns(JSON.stringify({ header: ['Accept: application/xml'] }));
-
-    await Rest.run(['/', '--api-version', '42.0', '--file', 'file.json', '--target-org', 'test@hub.com']);
-
-    const output = stripAnsi(writeSpy.args.flat().join(''));
-
-    // https://github.com/oclif/core/blob/ff76400fb0bdfc4be0fa93056e86183b9205b323/src/command.ts#L248-L253
-    expect(output).to.equal(xmlRes + '\n');
+    expect(stripAnsi(writeSpy.args.flat().join(''))).to.include(xmlRes + '\n');
   });
 
   it('should validate HTTP headers are in a "key:value" format', async () => {

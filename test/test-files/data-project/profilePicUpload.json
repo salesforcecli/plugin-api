@@ -1,0 +1,29 @@
+{
+  "method": "POST",
+  "header": [
+    {
+      "key": "content-type",
+      "value": "multipart/form-data"
+    },
+    {
+      "key": "Accept",
+      "value": "application/json"
+    }
+  ],
+  "body": {
+    "mode": "formdata",
+    "formdata": [
+      {
+        "key": "json",
+        "type": "text",
+        "value": "{\"cropY\":\"0\",\"cropX\":\"0\",\"cropSize\":\"200\"}"
+      },
+      {
+        "key": "fileUpload",
+        "type": "file",
+        "src": "pfp.jpeg"
+      }
+    ]
+  },
+  "url": "connect/user-profiles/me/photo"
+}
