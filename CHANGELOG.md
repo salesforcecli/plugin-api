@@ -1,3 +1,9 @@
+## [1.2.2](https://github.com/salesforcecli/plugin-api/compare/1.2.1...1.2.2) (2024-09-19)
+
+### Bug Fixes
+
+- edit messages ([20f0e7b](https://github.com/salesforcecli/plugin-api/commit/20f0e7b51924889d31cfcd435a875befe5e1c472))
+
 ## [1.2.1](https://github.com/salesforcecli/plugin-api/compare/1.2.0...1.2.1) (2024-08-27)
 
 ### Bug Fixes
