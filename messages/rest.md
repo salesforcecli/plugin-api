@@ -63,7 +63,39 @@ HTTP method for the request.
 
 # flags.file.summary
 
-A json file to store values for header/body/method/url - this is the same format as a Postman Collection Format
+A json file to store values for header/body/method/url - this is a similar format as a Postman Collection Format.
+
+{
+"method": "POST",
+"header": [
+{
+"key": "content-type",
+"value": "multipart/form-data"
+},
+{
+"key": "Accept",
+"value": "application/json"
+}
+],
+"body": {
+"mode": "formdata",
+"formdata": [
+{
+"key": "json",
+"type": "text",
+"value": "{\"cropY\":\"0\",\"cropX\":\"0\",\"cropSize\":\"200\"}"
+} ,
+{
+"key": "fileUpload",
+"type": "file",
+"src": "myImg.jpeg"
+}
+]
+},
+"url": "connect/user-profiles/me/photo"
+}
+
+see more examples in this repo's test directory https://github.com/salesforcecli/plugin-api/tree/main/test/test-files/data-project
 
 # flags.header.summary
 

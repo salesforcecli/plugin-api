@@ -6,41 +6,13 @@
  */
 import { createWriteStream } from 'node:fs';
 import { Messages, SfError } from '@salesforce/core';
-import type { Headers } from 'got';
 import { Flags, SfCommand } from '@salesforce/sf-plugins-core';
 import ansis from 'ansis';
 import { AnyJson } from '@salesforce/ts-types';
 import got from 'got';
-import { PostmanSchema } from '../commands/api/request/rest.js';
 
 Messages.importMessagesDirectoryFromMetaUrl(import.meta.url);
 const messages = Messages.loadMessages('@salesforce/plugin-api', 'shared');
-export function getHeaders(keyValPair: string[] | PostmanSchema['header'] | undefined): Headers {
-  if (!keyValPair) return {};
-  const headers: { [key: string]: string } = {};
-
-  if (typeof keyValPair === 'string') {
-    const [key, ...rest] = keyValPair.split(':');
-    headers[key.toLowerCase()] = rest.join(':').trim();
-  } else {
-    keyValPair.map((header) => {
-      if (typeof header === 'string') {
-        const [key, ...rest] = header.split(':');
-        const value = rest.join(':').trim();
-        if (!key || !value) {
-          throw new SfError(`Failed to parse HTTP header: "${header}".`, 'Failed To Parse HTTP Header', [
-            'Make sure the header is in a "key:value" format, e.g. "Accept: application/json"',
-          ]);
-        }
-        headers[key.toLowerCase()] = value;
-      } else if (!header.disabled) {
-        headers[header.key.toLowerCase()] = header.value;
-      }
-    });
-  }
-
-  return headers;
-}
 
 export async function sendAndPrintRequest(options: {
   streamFile?: string;

@@ -6,11 +6,12 @@
  */
 import { readFileSync, createReadStream } from 'node:fs';
 import { ProxyAgent } from 'proxy-agent';
+import type { Headers } from 'got';
 import { Flags, SfCommand } from '@salesforce/sf-plugins-core';
 import { Messages, Org, SFDX_HTTP_HEADERS, SfError } from '@salesforce/core';
 import { Args } from '@oclif/core';
 import FormData from 'form-data';
-import { getHeaders, includeFlag, sendAndPrintRequest, streamToFileFlag } from '../../../shared/shared.js';
+import { includeFlag, sendAndPrintRequest, streamToFileFlag } from '../../../shared/shared.js';
 
 Messages.importMessagesDirectoryFromMetaUrl(import.meta.url);
 const messages = Messages.loadMessages('@salesforce/plugin-api', 'rest');
@@ -84,8 +85,6 @@ export class Rest extends SfCommand<void> {
       throw new SfError("The url is required either in --file file's content or as an argument");
     }
 
-    const headers = getHeaders(flags.header ?? fileOptions?.header);
-
     // the conditional above ensures we either have an arg or it's in the file - now we just have to find where the URL value is
     const specified = args.url ?? (fileOptions?.url as { raw: string }).raw ?? fileOptions?.url;
     const url = new URL(
@@ -104,11 +103,11 @@ export class Rest extends SfCommand<void> {
     }
 
     const body = method !== 'GET' ? flags.body ?? getBodyContents(fileOptions?.body) : undefined;
+    let headers = getHeaders(flags.header ?? fileOptions?.header);
 
-    let formDataHeaders = {};
     if (body instanceof FormData) {
       // if it's a multi-part formdata request, those have extra headers
-      formDataHeaders = body.getHeaders();
+      headers = { ...headers, ...body.getHeaders() };
     }
 
     const options = {
@@ -122,7 +121,6 @@ export class Rest extends SfCommand<void> {
           org.getConnection().getConnectionOptions().accessToken!
         }`,
         ...headers,
-        ...formDataHeaders,
       },
       body,
       throwHttpErrors: false,
@@ -153,3 +151,30 @@ const getBodyContents = (body?: PostmanSchema['body']): string | FormData => {
     return form;
   }
 };
+
+function getHeaders(keyValPair: string[] | PostmanSchema['header'] | undefined): Headers {
+  if (!keyValPair) return {};
+  const headers: { [key: string]: string } = {};
+
+  if (typeof keyValPair === 'string') {
+    const [key, ...rest] = keyValPair.split(':');
+    headers[key.toLowerCase()] = rest.join(':').trim();
+  } else {
+    keyValPair.map((header) => {
+      if (typeof header === 'string') {
+        const [key, ...rest] = header.split(':');
+        const value = rest.join(':').trim();
+        if (!key || !value) {
+          throw new SfError(`Failed to parse HTTP header: "${header}".`, 'Failed To Parse HTTP Header', [
+            'Make sure the header is in a "key:value" format, e.g. "Accept: application/json"',
+          ]);
+        }
+        headers[key.toLowerCase()] = value;
+      } else if (!header.disabled) {
+        headers[header.key.toLowerCase()] = header.value;
+      }
+    });
+  }
+
+  return headers;
+}
