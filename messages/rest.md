@@ -34,28 +34,9 @@ For a full list of supported REST endpoints and resources, see https://developer
 
   <%= config.bin %> <%= command.id %> 'sobjects/account/<Account ID>' --body "{\"BillingCity\": \"San Francisco\"}" --method PATCH
 
-- You can store every flag option as a parameter in a json file, with the following schema:
-  {
-  url: { raw: string } | string;
-  method: 'GET', 'POST', 'PUT', 'PATCH', 'HEAD', 'DELETE', 'OPTIONS', 'TRACE';
-  description?: string;
-  header: string | Array<Record<string, string>>;
-  body: { mode: 'raw' | 'formdata'; raw: string; formdata: FormData };
-  }
-
-  looking at the example above, we could store all of this information in the file, and change the command to
+- Store the values for the request header, body, and so on, in a file, which you then specify with the --file flag; see the description of --file for more information:
 
   <%= config.bin %> <%= command.id %> --file myFile.json
-
-  where myFile.json contains
-  {
-  "url": "sobjects/Account/<Account ID>",
-  "method": "PATCH",
-  "body" : {"BillingCity": "Boise"}
-  }
-
-- If you work in Postman a lot this schema may look familiar, because it shares as many similar properties as we could. Building an API call in postman then exporting and saving the file and executing via the CLI is now possible.
--
 
 # flags.method.summary
 
@@ -63,39 +44,31 @@ HTTP method for the request.
 
 # flags.file.summary
 
-A json file to store values for header/body/method/url - this is a similar format as a Postman Collection Format.
+JSON file that contains values for the request header, body, method, and URL.
+
+# flags.file.description
+
+Use this flag instead of specifying the request details with individual flags, such as --body or --method. This schema defines how to create the JSON file:
 
 {
-"method": "POST",
-"header": [
-{
-"key": "content-type",
-"value": "multipart/form-data"
-},
-{
-"key": "Accept",
-"value": "application/json"
-}
-],
-"body": {
-"mode": "formdata",
-"formdata": [
-{
-"key": "json",
-"type": "text",
-"value": "{\"cropY\":\"0\",\"cropX\":\"0\",\"cropSize\":\"200\"}"
-} ,
-{
-"key": "fileUpload",
-"type": "file",
-"src": "myImg.jpeg"
-}
-]
-},
-"url": "connect/user-profiles/me/photo"
+url: { raw: string } | string;
+method: 'GET', 'POST', 'PUT', 'PATCH', 'HEAD', 'DELETE', 'OPTIONS', 'TRACE';
+description?: string;
+header: string | Array<Record<string, string>>;
+body: { mode: 'raw' | 'formdata'; raw: string; formdata: FormData };
 }
 
-see more examples in this repo's test directory https://github.com/salesforcecli/plugin-api/tree/main/test/test-files/data-project
+Salesforce CLI defined this schema to be mimic Postman schemas; both share similar properties. The CLI's schema also supports Postman Collections to reuse and share requests. As a result, you can build an API call using Postman, export and save it to a file, and then use the file as a value to this flag. For information about Postman, see https://learning.postman.com/.
+
+Here's a simple example of a JSON file that contains values for the request URL, method, and body:
+
+{
+"url": "sobjects/Account/<Account ID>",
+"method": "PATCH",
+"body" : {"BillingCity": "Boise"}
+}
+
+See more examples in the plugin-api test directory, including JSON files that use "formdata" to define collections: https://github.com/salesforcecli/plugin-api/tree/main/test/test-files/data-project.
 
 # flags.header.summary
 
