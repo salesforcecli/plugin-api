@@ -34,28 +34,9 @@ For a full list of supported REST endpoints and resources, see https://developer
 
   <%= config.bin %> <%= command.id %> 'sobjects/account/<Account ID>' --body "{\"BillingCity\": \"San Francisco\"}" --method PATCH
 
-- You can store every flag option as a parameter in a json file, with the following schema:
-  {
-  url: { raw: string } | string;
-  method: 'GET', 'POST', 'PUT', 'PATCH', 'HEAD', 'DELETE', 'OPTIONS', 'TRACE';
-  description?: string;
-  header: string | Array<Record<string, string>>;
-  body: { mode: 'raw' | 'formdata'; raw: string; formdata: FormData };
-  }
-
-  looking at the example above, we could store all of this information in the file, and change the command to
+- Rather than specify all the argument and flag values at the command line, store them in a file which you pass to the command; see the description of the --file flag for more information:
 
   <%= config.bin %> <%= command.id %> --file myFile.json
-
-  where myFile.json contains
-  {
-  "url": "sobjects/Account/<Account ID>",
-  "method": "PATCH",
-  "body" : {"BillingCity": "Boise"}
-  }
-
-- If you work in Postman a lot this schema may look familiar, because it shares as many similar properties as we could. Building an API call in postman then exporting and saving the file and executing via the CLI is now possible.
--
 
 # flags.method.summary
 
@@ -63,7 +44,32 @@ HTTP method for the request.
 
 # flags.file.summary
 
-A json file to store values for header/body/method/url - this is a similar format as a Postman Collection Format.
+JSON file to store values for the header/body/method/url
+
+# flags.file.description
+
+You can store every flag option as a parameter in a json file, with the following schema:
+
+{
+url: { raw: string } | string;
+method: 'GET', 'POST', 'PUT', 'PATCH', 'HEAD', 'DELETE', 'OPTIONS', 'TRACE';
+description?: string;
+header: string | Array<Record<string, string>>;
+body: { mode: 'raw' | 'formdata'; raw: string; formdata: FormData };
+}
+
+<%= config.bin %> <%= command.id %> --file myFile.json
+
+where myFile.json contains
+{
+"url": "sobjects/Account/<Account ID>",
+"method": "PATCH",
+"body" : {"BillingCity": "Boise"}
+}
+
+If you work in Postman a lot this schema may look familiar, because it shares as many similar properties as we could. Building an API call in postman then exporting and saving the file and executing via the CLI is now possible.
+
+The format of the file is similar to the Postman Collection Format. For example:
 
 {
 "method": "POST",
@@ -95,7 +101,7 @@ A json file to store values for header/body/method/url - this is a similar forma
 "url": "connect/user-profiles/me/photo"
 }
 
-see more examples in this repo's test directory https://github.com/salesforcecli/plugin-api/tree/main/test/test-files/data-project
+See more examples in this repo's test directory https://github.com/salesforcecli/plugin-api/tree/main/test/test-files/data-project.
 
 # flags.header.summary
 

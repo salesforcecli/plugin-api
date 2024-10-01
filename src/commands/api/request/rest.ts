@@ -52,6 +52,7 @@ export class Rest extends SfCommand<void> {
     }),
     file: Flags.file({
       summary: messages.getMessage('flags.file.summary'),
+      description: messages.getMessage('flags.file.description'),
       helpValue: 'file',
       char: 'f',
     }),
