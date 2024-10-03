@@ -1,3 +1,9 @@
+# [1.3.0](https://github.com/salesforcecli/plugin-api/compare/1.2.2...1.3.0) (2024-10-03)
+
+### Features
+
+- **rest:** add `--file` request flag ([#14](https://github.com/salesforcecli/plugin-api/issues/14)) ([aef0d4b](https://github.com/salesforcecli/plugin-api/commit/aef0d4b136f29ab5bd46ef4482169c5b13a720a0))
+
 ## [1.2.2](https://github.com/salesforcecli/plugin-api/compare/1.2.1...1.2.2) (2024-09-19)
 
 ### Bug Fixes
