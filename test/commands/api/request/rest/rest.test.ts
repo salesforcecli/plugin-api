@@ -15,7 +15,8 @@ import { MockTestOrgData, TestContext } from '@salesforce/core/testSetup';
 import { sleep } from '@salesforce/kit';
 import nock = require('nock');
 import { stubUx } from '@salesforce/sf-plugins-core';
-import { Rest } from '../../../../../src/commands/api/request/rest.js';
+import * as FormData from 'form-data';
+import { getBodyContents, getHeaders, PostmanSchema, Rest } from '../../../../../src/commands/api/request/rest.js';
 
 describe('rest', () => {
   const $$ = new TestContext();
@@ -30,6 +31,14 @@ describe('rest', () => {
       Remaining: 199,
     },
   };
+
+  const xmlRes = `<?xml version="1.0" encoding="UTF-8"?>
+<LimitsSnapshot>
+	<ActiveScratchOrgs>
+		<Max>200</Max>
+		<Remaining>198</Remaining>
+	</ActiveScratchOrgs>
+</LimitsSnapshot>`;
 
   beforeEach(async () => {
     await $$.stubAuths(testOrg);
@@ -85,23 +94,20 @@ describe('rest', () => {
     // gives it a second to resolve promises and close streams before we start asserting
     await sleep(1000);
 
-    expect(writeSpy.args.flat().join('')).to.deep.equal('File saved to myOutput.txt' + '\n');
+    expect(writeSpy.args.flat().join('')).to.include('File saved to myOutput.txt' + '\n');
     expect(JSON.parse(fs.readFileSync('myOutput.txt', 'utf8'))).to.deep.equal(orgLimitsResponse);
+  });
 
-    after(() => {
-      // more than a UT
+  after(() => {
+    // more than a UT
+    try {
       fs.rmSync(path.join(process.cwd(), 'myOutput.txt'));
-    });
+    } catch (e) {
+      // do nothing
+    }
   });
 
   it('should set "Accept" HTTP header', async () => {
-    const xmlRes = `<?xml version="1.0" encoding="UTF-8"?>
-<LimitsSnapshot>
-	<ActiveScratchOrgs>
-		<Max>200</Max>
-		<Remaining>198</Remaining>
-	</ActiveScratchOrgs>
-</LimitsSnapshot>`;
     const writeSpy = $$.SANDBOX.stub(process.stdout, 'write');
 
     nock(testOrg.instanceUrl, {
@@ -113,7 +119,7 @@ describe('rest', () => {
       .reply(200, xmlRes);
 
     await Rest.run([
-      '',
+      '/',
       '--api-version',
       '42.0',
       '--method',
@@ -124,10 +130,8 @@ describe('rest', () => {
       'test@hub.com',
     ]);
 
-    const output = stripAnsi(writeSpy.args.flat().join(''));
-
     // https://github.com/oclif/core/blob/ff76400fb0bdfc4be0fa93056e86183b9205b323/src/command.ts#L248-L253
-    expect(output).to.equal(xmlRes + '\n');
+    expect(stripAnsi(writeSpy.args.flat().join(''))).to.include(xmlRes + '\n');
   });
 
   it('should validate HTTP headers are in a "key:value" format', async () => {
@@ -141,6 +145,58 @@ describe('rest', () => {
       }
       expect(err.actions[0]).to.equal(
         'Make sure the header is in a "key:value" format, e.g. "Accept: application/json"'
+      );
+    }
+  });
+
+  it('will error when mode not specified', () => {
+    try {
+      getBodyContents({
+        raw: {
+          name: 'Mr Doe',
+        },
+      } as unknown as PostmanSchema['body']);
+      assert.fail('the above should throw an error, no mode found');
+    } catch (e) {
+      expect((e as SfError).message).to.equal("No 'mode' found in 'body' entry");
+      expect((e as SfError).actions).to.deep.equal(['add "mode":"raw" | "formdata" to your body']);
+    }
+  });
+
+  it('will validate raw content', () => {
+    const result = getBodyContents({
+      mode: 'raw',
+      raw: "{name: 'Mr Doe'}",
+    });
+    expect(result).to.equal('"{name: \'Mr Doe\'}"');
+  });
+
+  it('will validate formdata content', () => {
+    const result = getBodyContents({
+      mode: 'formdata',
+      formdata: [
+        {
+          key: 'info',
+          type: 'text',
+          value: 'myInfoHere',
+        },
+      ],
+    });
+    expect((result as FormData).getBuffer().toString()).to.include('myInfoHere');
+  });
+
+  it('should validate header format', () => {
+    try {
+      getHeaders([
+        {
+          value: 'application/xml',
+        },
+      ] as PostmanSchema['header']);
+      assert.fail('the above should throw an error, invalid header format');
+    } catch (e) {
+      expect(e instanceof SfError).to.be.true;
+      expect((e as SfError).message).to.equal(
+        'Failed to validate header: missing key: undefined or value: application/xml'
       );
     }
   });

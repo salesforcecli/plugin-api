@@ -4,16 +4,48 @@
  * Licensed under the BSD 3-Clause license.
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import { readFileSync, existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { readFileSync, createReadStream } from 'node:fs';
 import { ProxyAgent } from 'proxy-agent';
+import type { Headers } from 'got';
 import { Flags, SfCommand } from '@salesforce/sf-plugins-core';
-import { Messages, Org, SFDX_HTTP_HEADERS } from '@salesforce/core';
+import { Messages, Org, SFDX_HTTP_HEADERS, SfError } from '@salesforce/core';
 import { Args } from '@oclif/core';
-import { getHeaders, includeFlag, sendAndPrintRequest, streamToFileFlag } from '../../../shared/shared.js';
+import FormData from 'form-data';
+import { includeFlag, sendAndPrintRequest, streamToFileFlag } from '../../../shared/shared.js';
 
 Messages.importMessagesDirectoryFromMetaUrl(import.meta.url);
 const messages = Messages.loadMessages('@salesforce/plugin-api', 'rest');
+const methodOptions = ['GET', 'POST', 'PUT', 'PATCH', 'HEAD', 'DELETE', 'OPTIONS', 'TRACE'] as const;
+
+type FileFormData = {
+  type: 'file';
+  src: string | string[];
+  key: string;
+};
+
+type StringFormData = {
+  type: 'text';
+  value: string;
+  key: string;
+};
+
+type FormDataPostmanSchema = {
+  mode: 'formdata';
+  formdata: Array<FileFormData | StringFormData>;
+};
+
+type RawPostmanSchema = {
+  mode: 'raw';
+  raw: string | Record<string, unknown>;
+};
+
+export type PostmanSchema = {
+  url: { raw: string } | string;
+  method: typeof methodOptions;
+  description?: string;
+  header: string | Array<{ key: string; value: string; disabled?: boolean; description?: string }>;
+  body: RawPostmanSchema | FormDataPostmanSchema;
+};
 
 export class Rest extends SfCommand<void> {
   public static readonly summary = messages.getMessage('summary');
@@ -26,10 +58,9 @@ export class Rest extends SfCommand<void> {
     'api-version': Flags.orgApiVersion(),
     include: includeFlag,
     method: Flags.option({
-      options: ['GET', 'POST', 'PUT', 'PATCH', 'HEAD', 'DELETE', 'OPTIONS', 'TRACE'] as const,
+      options: methodOptions,
       summary: messages.getMessage('flags.method.summary'),
       char: 'X',
-      default: 'GET',
     })(),
     header: Flags.string({
       summary: messages.getMessage('flags.header.summary'),
@@ -37,18 +68,25 @@ export class Rest extends SfCommand<void> {
       char: 'H',
       multiple: true,
     }),
+    file: Flags.file({
+      summary: messages.getMessage('flags.file.summary'),
+      description: messages.getMessage('flags.file.description'),
+      helpValue: 'file',
+      char: 'f',
+    }),
     'stream-to-file': streamToFileFlag,
     body: Flags.string({
       summary: messages.getMessage('flags.body.summary'),
       allowStdin: true,
       helpValue: 'file',
+      char: 'b',
     }),
   };
 
   public static args = {
-    endpoint: Args.string({
+    url: Args.string({
       description: 'Salesforce API endpoint',
-      required: true,
+      required: false,
     }),
   };
 
@@ -57,30 +95,43 @@ export class Rest extends SfCommand<void> {
 
     const org = flags['target-org'];
     const streamFile = flags['stream-to-file'];
-    const headers = flags.header ? getHeaders(flags.header) : {};
+    const fileOptions: PostmanSchema | undefined = flags.file
+      ? (JSON.parse(readFileSync(flags.file, 'utf8')) as PostmanSchema)
+      : undefined;
 
-    // replace first '/' to create valid URL
-    const endpoint = args.endpoint.startsWith('/') ? args.endpoint.replace('/', '') : args.endpoint;
+    // validate that we have a URL to hit
+    if (!args.url && !fileOptions?.url) {
+      throw new SfError("The url is required either in --file file's content or as an argument");
+    }
+
+    // the conditional above ensures we either have an arg or it's in the file - now we just have to find where the URL value is
+    const specified = args.url ?? (fileOptions?.url as { raw: string }).raw ?? fileOptions?.url;
     const url = new URL(
       `${org.getField<string>(Org.Fields.INSTANCE_URL)}/services/data/v${
         flags['api-version'] ?? (await org.retrieveMaxApiVersion())
-      }/${endpoint}`
+        // replace first '/' to create valid URL
+      }/${specified.replace(/\//y, '')}`
     );
 
-    const body =
-      flags.method === 'GET'
-        ? undefined
-        : // if they've passed in a file name, check and read it
-        existsSync(join(process.cwd(), flags.body ?? ''))
-        ? readFileSync(join(process.cwd(), flags.body ?? ''))
-        : // otherwise it's a stdin, and we use it directly
-          flags.body;
+    // default the method to GET here to allow flags to override, but not hinder reading from files, rather than setting the default in the flag definition
+    const method = flags.method ?? fileOptions?.method ?? 'GET';
+    // @ts-expect-error users _could_ put one of these in their file without knowing it's wrong - TS is smarter than users here :)
+    if (!methodOptions.includes(method)) {
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      throw new SfError(`"${method}" must be one of ${methodOptions.join(', ')}`);
+    }
 
-    await org.refreshAuth();
+    const body = method !== 'GET' ? flags.body ?? getBodyContents(fileOptions?.body) : undefined;
+    let headers = getHeaders(flags.header ?? fileOptions?.header);
+
+    if (body instanceof FormData) {
+      // if it's a multi-part formdata request, those have extra headers
+      headers = { ...headers, ...body.getHeaders() };
+    }
 
     const options = {
       agent: { https: new ProxyAgent() },
-      method: flags.method,
+      method,
       headers: {
         ...SFDX_HTTP_HEADERS,
         Authorization: `Bearer ${
@@ -95,6 +146,62 @@ export class Rest extends SfCommand<void> {
       followRedirect: false,
     };
 
+    await org.refreshAuth();
+
     await sendAndPrintRequest({ streamFile, url, options, include: flags.include, this: this });
   }
+}
+
+export const getBodyContents = (body?: PostmanSchema['body']): string | FormData => {
+  if (!body?.mode) {
+    throw new SfError("No 'mode' found in 'body' entry", undefined, ['add "mode":"raw" | "formdata" to your body']);
+  }
+
+  if (body?.mode === 'raw') {
+    return JSON.stringify(body.raw);
+  } else {
+    // parse formdata
+    const form = new FormData();
+    body?.formdata.map((data) => {
+      if (data.type === 'text') {
+        form.append(data.key, data.value);
+      } else if (data.type === 'file' && typeof data.src === 'string') {
+        form.append(data.key, createReadStream(data.src));
+      } else if (Array.isArray(data.src)) {
+        form.append(data.key, data.src);
+      }
+    });
+
+    return form;
+  }
+};
+
+export function getHeaders(keyValPair: string[] | PostmanSchema['header'] | undefined): Headers {
+  if (!keyValPair) return {};
+  const headers: { [key: string]: string } = {};
+
+  if (typeof keyValPair === 'string') {
+    const [key, ...rest] = keyValPair.split(':');
+    headers[key.toLowerCase()] = rest.join(':').trim();
+  } else {
+    keyValPair.map((header) => {
+      if (typeof header === 'string') {
+        const [key, ...rest] = header.split(':');
+        const value = rest.join(':').trim();
+        if (!key || !value) {
+          throw new SfError(`Failed to parse HTTP header: "${header}".`, 'Failed To Parse HTTP Header', [
+            'Make sure the header is in a "key:value" format, e.g. "Accept: application/json"',
+          ]);
+        }
+        headers[key.toLowerCase()] = value;
+      } else if (!header.disabled) {
+        if (!header.key || !header.value) {
+          throw new SfError(`Failed to validate header: missing key: ${header.key} or value: ${header.value}`);
+        }
+        headers[header.key.toLowerCase()] = header.value;
+      }
+    });
+  }
+
+  return headers;
 }

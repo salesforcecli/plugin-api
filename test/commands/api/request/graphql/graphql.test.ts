@@ -77,7 +77,8 @@ describe('graphql', () => {
 
     await Graphql.run(['--target-org', 'test@hub.com', '--body', 'standard.txt']);
 
-    const output = stripAnsi(stdoutSpy.args.flat().join(''));
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    const output = stripAnsi(stdoutSpy!.args.at(0)!.at(0));
 
     expect(JSON.parse(output)).to.deep.equal(serverResponse);
   });
@@ -89,16 +90,17 @@ describe('graphql', () => {
 
     // gives it a second to resolve promises and close streams before we start asserting
     await sleep(1000);
-    const output = stripAnsi(stdoutSpy.args.flat().join(''));
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    const output = stripAnsi(stdoutSpy!.args.at(0)!.at(0));
 
     expect(output).to.deep.equal('File saved to myOutput1.txt' + '\n');
     expect(await fs.promises.readFile('myOutput1.txt', 'utf8')).to.deep.equal(
       '{"data":{"uiapi":{"query":{"Account":{"edges":[{"node":{"Id":"0017g00001nEdPjAAK","Name":{"value":"Sample Account for Entitlements"}}}]}}}},"errors":[]}'
     );
+  });
 
-    after(() => {
-      // more than a UT
-      fs.rmSync(path.join(process.cwd(), 'myOutput1.txt'));
-    });
+  after(() => {
+    // more than a UT
+    fs.rmSync(path.join(process.cwd(), 'myOutput1.txt'));
   });
 });
