@@ -17,16 +17,34 @@ Messages.importMessagesDirectoryFromMetaUrl(import.meta.url);
 const messages = Messages.loadMessages('@salesforce/plugin-api', 'rest');
 const methodOptions = ['GET', 'POST', 'PUT', 'PATCH', 'HEAD', 'DELETE', 'OPTIONS', 'TRACE'] as const;
 
+type FileFormData = {
+  type: 'file';
+  src: string | string[];
+  key: string;
+};
+
+type StringFormData = {
+  type: 'text';
+  value: string;
+  key: string;
+};
+
+type FormDataPostmanSchema = {
+  mode: 'formdata';
+  formdata: Array<FileFormData | StringFormData>;
+};
+
+type RawPostmanSchema = {
+  mode: 'raw';
+  raw: string | Record<string, unknown>;
+};
+
 export type PostmanSchema = {
   url: { raw: string } | string;
   method: typeof methodOptions;
   description?: string;
   header: string | Array<{ key: string; value: string; disabled?: boolean; description?: string }>;
-  body: {
-    mode: 'raw' | 'formdata';
-    raw: string;
-    formdata: Array<{ key: string; type: 'file' | 'text'; src?: string | string[]; value: string }>;
-  };
+  body: RawPostmanSchema | FormDataPostmanSchema;
 };
 
 export class Rest extends SfCommand<void> {
@@ -133,7 +151,12 @@ export class Rest extends SfCommand<void> {
     await sendAndPrintRequest({ streamFile, url, options, include: flags.include, this: this });
   }
 }
-const getBodyContents = (body?: PostmanSchema['body']): string | FormData => {
+
+export const getBodyContents = (body?: PostmanSchema['body']): string | FormData => {
+  if (!body?.mode) {
+    throw new SfError("No 'mode' found in 'body' entry", undefined, ['add "mode":"raw" | "formdata" to your body']);
+  }
+
   if (body?.mode === 'raw') {
     return JSON.stringify(body.raw);
   } else {
@@ -153,7 +176,7 @@ const getBodyContents = (body?: PostmanSchema['body']): string | FormData => {
   }
 };
 
-function getHeaders(keyValPair: string[] | PostmanSchema['header'] | undefined): Headers {
+export function getHeaders(keyValPair: string[] | PostmanSchema['header'] | undefined): Headers {
   if (!keyValPair) return {};
   const headers: { [key: string]: string } = {};
 
@@ -172,6 +195,9 @@ function getHeaders(keyValPair: string[] | PostmanSchema['header'] | undefined):
         }
         headers[key.toLowerCase()] = value;
       } else if (!header.disabled) {
+        if (!header.key || !header.value) {
+          throw new SfError(`Failed to validate header: missing key: ${header.key} or value: ${header.value}`);
+        }
         headers[header.key.toLowerCase()] = header.value;
       }
     });

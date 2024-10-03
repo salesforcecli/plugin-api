@@ -15,7 +15,8 @@ import { MockTestOrgData, TestContext } from '@salesforce/core/testSetup';
 import { sleep } from '@salesforce/kit';
 import nock = require('nock');
 import { stubUx } from '@salesforce/sf-plugins-core';
-import { Rest } from '../../../../../src/commands/api/request/rest.js';
+import * as FormData from 'form-data';
+import { getBodyContents, getHeaders, PostmanSchema, Rest } from '../../../../../src/commands/api/request/rest.js';
 
 describe('rest', () => {
   const $$ = new TestContext();
@@ -144,6 +145,58 @@ describe('rest', () => {
       }
       expect(err.actions[0]).to.equal(
         'Make sure the header is in a "key:value" format, e.g. "Accept: application/json"'
+      );
+    }
+  });
+
+  it('will error when mode not specified', () => {
+    try {
+      getBodyContents({
+        raw: {
+          name: 'Mr Doe',
+        },
+      } as unknown as PostmanSchema['body']);
+      assert.fail('the above should throw an error, no mode found');
+    } catch (e) {
+      expect((e as SfError).message).to.equal("No 'mode' found in 'body' entry");
+      expect((e as SfError).actions).to.deep.equal(['add "mode":"raw" | "formdata" to your body']);
+    }
+  });
+
+  it('will validate raw content', () => {
+    const result = getBodyContents({
+      mode: 'raw',
+      raw: "{name: 'Mr Doe'}",
+    });
+    expect(result).to.equal('"{name: \'Mr Doe\'}"');
+  });
+
+  it('will validate formdata content', () => {
+    const result = getBodyContents({
+      mode: 'formdata',
+      formdata: [
+        {
+          key: 'info',
+          type: 'text',
+          value: 'myInfoHere',
+        },
+      ],
+    });
+    expect((result as FormData).getBuffer().toString()).to.include('myInfoHere');
+  });
+
+  it('should validate header format', () => {
+    try {
+      getHeaders([
+        {
+          value: 'application/xml',
+        },
+      ] as PostmanSchema['header']);
+      assert.fail('the above should throw an error, invalid header format');
+    } catch (e) {
+      expect(e instanceof SfError).to.be.true;
+      expect((e as SfError).message).to.equal(
+        'Failed to validate header: missing key: undefined or value: application/xml'
       );
     }
   });

@@ -65,7 +65,12 @@ Here's a simple example of a JSON file that contains values for the request URL,
 {
 "url": "sobjects/Account/<Account ID>",
 "method": "PATCH",
-"body" : {"BillingCity": "Boise"}
+"body" : {
+"mode": "raw",
+"raw": {
+"BillingCity": "Boise"
+}
+}
 }
 
 See more examples in the plugin-api test directory, including JSON files that use "formdata" to define collections: https://github.com/salesforcecli/plugin-api/tree/main/test/test-files/data-project.
