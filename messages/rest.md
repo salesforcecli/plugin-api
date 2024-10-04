@@ -32,7 +32,7 @@ For a full list of supported REST endpoints and resources, see https://developer
 
 - Update an account record using the PATCH method:
 
-  <%= config.bin %> <%= command.id %> '/services/data/v56.0/sobjects/account/<Account ID>' --body "{\"BillingCity\": \"San Francisco\"}" -X PATCH
+  <%= config.bin %> <%= command.id %> '/services/data/v56.0/sobjects/account/<Account ID>' --body "{\"BillingCity\": \"San Francisco\"}" --method PATCH
 
 - Store the values for the request header, body, and so on, in a file, which you then specify with the --file flag; see the description of --file for more information:
 
