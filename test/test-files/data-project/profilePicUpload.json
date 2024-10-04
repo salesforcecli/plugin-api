@@ -25,5 +25,5 @@
       }
     ]
   },
-  "url": "connect/user-profiles/me/photo"
+  "url": "/services/data/v56.0/connect/user-profiles/me/photo"
 }

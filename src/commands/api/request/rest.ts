@@ -55,7 +55,6 @@ export class Rest extends SfCommand<void> {
   public static enableJsonFlag = false;
   public static readonly flags = {
     'target-org': Flags.requiredOrg(),
-    'api-version': Flags.orgApiVersion(),
     include: includeFlag,
     method: Flags.option({
       options: methodOptions,
@@ -73,6 +72,7 @@ export class Rest extends SfCommand<void> {
       description: messages.getMessage('flags.file.description'),
       helpValue: 'file',
       char: 'f',
+      exclusive: ['body'],
     }),
     'stream-to-file': streamToFileFlag,
     body: Flags.string({
@@ -106,12 +106,7 @@ export class Rest extends SfCommand<void> {
 
     // the conditional above ensures we either have an arg or it's in the file - now we just have to find where the URL value is
     const specified = args.url ?? (fileOptions?.url as { raw: string }).raw ?? fileOptions?.url;
-    const url = new URL(
-      `${org.getField<string>(Org.Fields.INSTANCE_URL)}/services/data/v${
-        flags['api-version'] ?? (await org.retrieveMaxApiVersion())
-        // replace first '/' to create valid URL
-      }/${specified.replace(/\//y, '')}`
-    );
+    const url = new URL(`${org.getField<string>(Org.Fields.INSTANCE_URL)}/${specified.replace(/\//y, '')}`);
 
     // default the method to GET here to allow flags to override, but not hinder reading from files, rather than setting the default in the flag definition
     const method = flags.method ?? fileOptions?.method ?? 'GET';
@@ -120,8 +115,22 @@ export class Rest extends SfCommand<void> {
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       throw new SfError(`"${method}" must be one of ${methodOptions.join(', ')}`);
     }
+    // body can be undefined;
+    // if we have a --body @myfile.json, read the file
+    // if we have a --body '{"key":"value"}' use that
+    // else read from --file's body
+    let body;
+    if (method !== 'GET') {
+      if (flags.body && flags.body.startsWith('@')) {
+        // remove the '@' and read it
+        body = readFileSync(flags.body.substring(1));
+      } else if (flags.body) {
+        body = flags.body;
+      } else if (!flags.body) {
+        body = getBodyContents(fileOptions?.body);
+      }
+    }
 
-    const body = method !== 'GET' ? flags.body ?? getBodyContents(fileOptions?.body) : undefined;
     let headers = getHeaders(flags.header ?? fileOptions?.header);
 
     if (body instanceof FormData) {

@@ -48,7 +48,7 @@ skipIfWindows('api:request:rest NUT', () => {
 
   describe('std out', () => {
     it('get result in json format', () => {
-      const result = execCmd("api request rest 'limits'").shellOutput.stdout;
+      const result = execCmd("api request rest '/services/data/v56.0/limits'").shellOutput.stdout;
 
       // make sure we got a JSON object back
       expect(Object.keys(JSON.parse(result) as Record<string, unknown>)).to.have.length;
@@ -71,7 +71,8 @@ skipIfWindows('api:request:rest NUT', () => {
     });
 
     it('should pass headers', () => {
-      const result = execCmd("api request rest 'limits' -H 'Accept: application/xml'").shellOutput.stdout;
+      const result = execCmd("api request rest '/services/data/v56.0/limits' -H 'Accept: application/xml'").shellOutput
+        .stdout;
 
       // the headers will change this to xml
       expect(result.startsWith('<?xml version="1.0" encoding="UTF-8"?><LimitsSnapshot>')).to.be.true;
@@ -94,9 +95,22 @@ skipIfWindows('api:request:rest NUT', () => {
       expect(res).to.include('"standardEmailPhotoUrl"');
     });
 
+    it('can send --body as a file', () => {
+      const res = execCmd(
+        `api request rest /services/data/v60.0/jobs/ingest -X POST --body @${join(
+          testSession.project.dir,
+          'bulkOpen.json'
+        )}`
+      ).shellOutput.stdout;
+      // this prints as json to stdout, verify a few key/values
+      expect(res).to.include('"id":');
+      expect(res).to.include('"operation": "insert"');
+      expect(res).to.include('"object": "Account"');
+    });
+
     it('can send raw data, with disabled headers', () => {
       const res = execCmd(`api request rest --file ${join(testSession.project.dir, 'raw.json')}`).shellOutput.stdout;
-      // this prints as json to stdout, verify a few key/valuess
+      // this prints as json to stdout, verify a few key/values
       expect(res).to.include('"AnalyticsExternalDataSizeMB":');
       expect(res).to.include('"SingleEmail"');
       expect(res).to.include('"PermissionSets"');
@@ -105,7 +119,8 @@ skipIfWindows('api:request:rest NUT', () => {
 
   describe('stream-to-file', () => {
     it('get result in json format', () => {
-      const result = execCmd("api request rest 'limits' --stream-to-file out.txt").shellOutput.stdout;
+      const result = execCmd("api request rest '/services/data/v56.0/limits' --stream-to-file out.txt").shellOutput
+        .stdout;
 
       expect(result.trim()).to.equal('File saved to out.txt');
 
@@ -115,8 +130,9 @@ skipIfWindows('api:request:rest NUT', () => {
     });
 
     it('should pass headers', () => {
-      const result = execCmd("api request rest 'limits' -H 'Accept: application/xml'  --stream-to-file out.txt")
-        .shellOutput.stdout;
+      const result = execCmd(
+        "api request rest '/services/data/v56.0/limits' -H 'Accept: application/xml'  --stream-to-file out.txt"
+      ).shellOutput.stdout;
 
       expect(result.trim()).to.equal('File saved to out.txt');
 

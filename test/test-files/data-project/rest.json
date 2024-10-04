@@ -1,4 +1,4 @@
 {
   "headers": ["Accept:application/json"],
-  "url": "/limits"
+  "url": "/services/data/v56.0/limits"
 }

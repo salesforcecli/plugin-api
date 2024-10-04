@@ -52,7 +52,7 @@ describe('rest', () => {
   it('should request org limits and default to "GET" HTTP method', async () => {
     nock(testOrg.instanceUrl).get('/services/data/v56.0/limits').reply(200, orgLimitsResponse);
 
-    await Rest.run(['--api-version', '56.0', 'limits', '--target-org', 'test@hub.com']);
+    await Rest.run(['services/data/v56.0/limits', '--target-org', 'test@hub.com']);
 
     expect(uxStub.styledJSON.args[0][0]).to.deep.equal(orgLimitsResponse);
   });
@@ -60,14 +60,14 @@ describe('rest', () => {
   it("should strip leading '/'", async () => {
     nock(testOrg.instanceUrl).get('/services/data/v56.0/limits').reply(200, orgLimitsResponse);
 
-    await Rest.run(['--api-version', '56.0', '/limits', '--target-org', 'test@hub.com']);
+    await Rest.run(['/services/data/v56.0/limits', '--target-org', 'test@hub.com']);
 
     expect(uxStub.styledJSON.args[0][0]).to.deep.equal(orgLimitsResponse);
   });
 
   it('should throw error for invalid header args', async () => {
     try {
-      await Rest.run(['limits', '--target-org', 'test@hub.com', '-H', 'myInvalidHeader']);
+      await Rest.run(['/services/data/v56.0/limits', '--target-org', 'test@hub.com', '-H', 'myInvalidHeader']);
       assert.fail('the above should throw');
     } catch (e) {
       expect((e as SfError).name).to.equal('Failed To Parse HTTP Header');
@@ -81,15 +81,7 @@ describe('rest', () => {
   it('should redirect to file', async () => {
     nock(testOrg.instanceUrl).get('/services/data/v56.0/limits').reply(200, orgLimitsResponse);
     const writeSpy = $$.SANDBOX.stub(process.stdout, 'write');
-    await Rest.run([
-      '--api-version',
-      '56.0',
-      'limits',
-      '--target-org',
-      'test@hub.com',
-      '--stream-to-file',
-      'myOutput.txt',
-    ]);
+    await Rest.run(['/services/data/v56.0/limits', '--target-org', 'test@hub.com', '--stream-to-file', 'myOutput.txt']);
 
     // gives it a second to resolve promises and close streams before we start asserting
     await sleep(1000);
@@ -119,9 +111,7 @@ describe('rest', () => {
       .reply(200, xmlRes);
 
     await Rest.run([
-      '/',
-      '--api-version',
-      '42.0',
+      '/services/data/v42.0/',
       '--method',
       'GET',
       '--header',
@@ -136,7 +126,13 @@ describe('rest', () => {
 
   it('should validate HTTP headers are in a "key:value" format', async () => {
     try {
-      await Rest.run(['services/data', '--header', 'Accept application/xml', '--target-org', 'test@hub.com']);
+      await Rest.run([
+        '/services/data/v56.0/limits',
+        '--header',
+        'Accept application/xml',
+        '--target-org',
+        'test@hub.com',
+      ]);
     } catch (e) {
       const err = e as SfError;
       expect(err.message).to.equal('Failed to parse HTTP header: "Accept application/xml".');
@@ -208,7 +204,7 @@ describe('rest', () => {
         location: `${testOrg.instanceUrl}/services/data/v56.0/limits`,
       });
 
-    await Rest.run(['limites', '--api-version', '56.0', '--target-org', 'test@hub.com']);
+    await Rest.run(['/services/data/v56.0/limites', '--target-org', 'test@hub.com']);
 
     expect(uxStub.styledJSON.args[0][0]).to.deep.equal(orgLimitsResponse);
   });
