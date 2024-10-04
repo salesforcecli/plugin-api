@@ -81,4 +81,4 @@ HTTP header in "key:value" format.
 
 # flags.body.summary
 
-File or content for the body of the HTTP request. Specify "-" to read from standard input or "" for an empty body. If passing a file, prefix it with '@' like CURL
+File or content for the body of the HTTP request. Specify "-" to read from standard input or "" for an empty body. If passing a file, prefix the filename with '@'. 
