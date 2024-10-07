@@ -20,5 +20,5 @@
       }
     ]
   },
-  "url": "connect/files/users/me"
+  "url": "/services/data/v56.0/connect/files/users/me"
 }

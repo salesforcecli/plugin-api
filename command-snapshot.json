@@ -12,17 +12,7 @@
     "command": "api:request:rest",
     "flagAliases": [],
     "flagChars": ["H", "S", "X", "b", "f", "i", "o"],
-    "flags": [
-      "api-version",
-      "body",
-      "file",
-      "flags-dir",
-      "header",
-      "include",
-      "method",
-      "stream-to-file",
-      "target-org"
-    ],
+    "flags": ["body", "file", "flags-dir", "header", "include", "method", "stream-to-file", "target-org"],
     "plugin": "@salesforce/plugin-api"
   }
 ]

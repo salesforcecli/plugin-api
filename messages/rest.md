@@ -12,27 +12,27 @@ For a full list of supported REST endpoints and resources, see https://developer
 
 - List information about limits in the org with alias "my-org":
 
-  <%= config.bin %> <%= command.id %> 'limits' --target-org my-org
+  <%= config.bin %> <%= command.id %> 'services/data/v56.0/limits' --target-org my-org
 
 - List all endpoints in your default org; write the output to a file called "output.txt" and include the HTTP response status and headers:
 
-  <%= config.bin %> <%= command.id %> '/' --stream-to-file output.txt --include
+  <%= config.bin %> <%= command.id %> '/services/data/v56.0/' --stream-to-file output.txt --include
 
 - Get the response in XML format by specifying the "Accept" HTTP header:
 
-  <%= config.bin %> <%= command.id %> 'limits' --header 'Accept: application/xml'
+  <%= config.bin %> <%= command.id %> '/services/data/v56.0/limits' --header 'Accept: application/xml'
 
 - Create an account record using the POST method; specify the request details directly in the "--body" flag:
 
-  <%= config.bin %> <%= command.id %> sobjects/account --body "{\"Name\" : \"Account from REST API\",\"ShippingCity\" : \"Boise\"}" --method POST
+  <%= config.bin %> <%= command.id %> /services/data/v56.0/sobjects/account --body "{\"Name\" : \"Account from REST API\",\"ShippingCity\" : \"Boise\"}" --method POST
 
-- Create an account record using the information in a file called "info.json":
+- Create an account record using the information in a file called "info.json" (note the @ prefixing the file name):
 
-  <%= config.bin %> <%= command.id %> 'sobjects/account' --body info.json --method POST
+  <%= config.bin %> <%= command.id %> '/services/data/v56.0/sobjects/account' --body @info.json --method POST
 
 - Update an account record using the PATCH method:
 
-  <%= config.bin %> <%= command.id %> 'sobjects/account/<Account ID>' --body "{\"BillingCity\": \"San Francisco\"}" --method PATCH
+  <%= config.bin %> <%= command.id %> '/services/data/v56.0/sobjects/account/<Account ID>' --body "{\"BillingCity\": \"San Francisco\"}" --method PATCH
 
 - Store the values for the request header, body, and so on, in a file, which you then specify with the --file flag; see the description of --file for more information:
 
@@ -81,4 +81,4 @@ HTTP header in "key:value" format.
 
 # flags.body.summary
 
-File or content for the body of the HTTP request. Specify "-" to read from standard input or "" for an empty body.
+File or content for the body of the HTTP request. Specify "-" to read from standard input or "" for an empty body. If passing a file, prefix the filename with '@'. 
