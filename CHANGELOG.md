@@ -1,3 +1,9 @@
+## [1.3.1](https://github.com/salesforcecli/plugin-api/compare/1.3.0...1.3.1) (2024-10-07)
+
+### Bug Fixes
+
+- change url builder, add @ prefix for files ([4acc1da](https://github.com/salesforcecli/plugin-api/commit/4acc1da182c8c735089348f93bded14f6c685626))
+
 # [1.3.0](https://github.com/salesforcecli/plugin-api/compare/1.2.2...1.3.0) (2024-10-03)
 
 ### Features
