@@ -1,3 +1,9 @@
+## [1.3.2](https://github.com/salesforcecli/plugin-api/compare/1.3.1...1.3.2) (2024-11-08)
+
+### Bug Fixes
+
+- bump sf-plugins-core ([67e243d](https://github.com/salesforcecli/plugin-api/commit/67e243d734eeacdf1819d1c65a6ebb3c1c9d4212))
+
 ## [1.3.1](https://github.com/salesforcecli/plugin-api/compare/1.3.0...1.3.1) (2024-10-07)
 
 ### Bug Fixes
