@@ -63,8 +63,9 @@ Salesforce CLI defined this schema to be mimic Postman schemas; both share simil
 Here's a simple example of a JSON file that contains values for the request URL, method, and body:
 
 {
-"url": "sobjects/Account/<Account ID>",
+"url": "services/data/v61.0/sobjects/Account/<Account ID>",
 "method": "PATCH",
+"headers": ["content-type:application/json"],
 "body" : {
 "mode": "raw",
 "raw": {
@@ -81,4 +82,4 @@ HTTP header in "key:value" format.
 
 # flags.body.summary
 
-File or content for the body of the HTTP request. Specify "-" to read from standard input or "" for an empty body. If passing a file, prefix the filename with '@'. 
+File or content for the body of the HTTP request. Specify "-" to read from standard input or "" for an empty body. If passing a file, prefix the filename with '@'.
