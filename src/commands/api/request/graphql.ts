@@ -45,6 +45,8 @@ export default class Graphql extends SfCommand<void> {
       .replaceAll('"', '\\"')}"}`;
     const url = new URL(`${org.getField<string>(Org.Fields.INSTANCE_URL)}/services/data/v${apiVersion}/graphql`);
 
+    // refresh access token to ensure `got` gets a valid access token.
+    // TODO: we could skip this step if we used jsforce's HTTP module instead (handles expired tokens).
     await org.refreshAuth();
 
     const options = {
