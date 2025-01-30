@@ -138,6 +138,10 @@ export class Rest extends SfCommand<void> {
       headers = { ...headers, ...body.getHeaders() };
     }
 
+    // refresh access token to ensure `got` gets a valid access token.
+    // TODO: we could skip this step if we used jsforce's HTTP module instead (handles expired tokens).
+    await org.refreshAuth();
+
     const options = {
       agent: { https: new ProxyAgent() },
       method,
@@ -154,8 +158,6 @@ export class Rest extends SfCommand<void> {
       throwHttpErrors: false,
       followRedirect: false,
     };
-
-    await org.refreshAuth();
 
     await sendAndPrintRequest({ streamFile, url, options, include: flags.include, this: this });
   }
