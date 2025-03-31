@@ -81,4 +81,8 @@ HTTP header in "key:value" format.
 
 # flags.body.summary
 
-File or content for the body of the HTTP request. Specify "-" to read from standard input or "" for an empty body. If passing a file, prefix the filename with '@'. 
+File or content for the body of the HTTP request. Specify "-" to read from standard input or "" for an empty body. If passing a file, prefix the filename with '@'.
+
+# flags.no-auth.summary
+
+Skip the "Authentication" header.

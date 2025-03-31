@@ -81,6 +81,9 @@ export class Rest extends SfCommand<void> {
       helpValue: 'file',
       char: 'b',
     }),
+    'no-auth': Flags.boolean({
+      summary: messages.getMessage('flags.no-auth.summary'),
+    }),
   };
 
   public static args = {
@@ -138,20 +141,27 @@ export class Rest extends SfCommand<void> {
       headers = { ...headers, ...body.getHeaders() };
     }
 
-    // refresh access token to ensure `got` gets a valid access token.
-    // TODO: we could skip this step if we used jsforce's HTTP module instead (handles expired tokens).
-    await org.refreshAuth();
+    const skipAuth = flags['no-auth'];
+    if (!skipAuth) {
+      // refresh access token to ensure `got` gets a valid access token.
+      // TODO: we could skip this step if we used jsforce's HTTP module instead (handles expired tokens).
+      await org.refreshAuth();
+    }
 
     const options = {
       agent: { https: new ProxyAgent() },
       method,
       headers: {
         ...SFDX_HTTP_HEADERS,
-        Authorization: `Bearer ${
-          // we don't care about apiVersion here, just need to get the access token.
-          // eslint-disable-next-line sf-plugin/get-connection-with-version
-          org.getConnection().getConnectionOptions().accessToken!
-        }`,
+        ...(skipAuth
+          ? {}
+          : {
+              Authorization: `Bearer ${
+                // we don't care about apiVersion here, just need to get the access token.
+                // eslint-disable-next-line sf-plugin/get-connection-with-version
+                org.getConnection().getConnectionOptions().accessToken!
+              }`,
+            }),
         ...headers,
       },
       body,
