@@ -85,4 +85,4 @@ File or content for the body of the HTTP request. Specify "-" to read from stand
 
 # flags.no-auth.summary
 
-Skip the "Authentication" header.
+Don't add the "Authorization: Bearer <token>" header to the request.
