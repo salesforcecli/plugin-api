@@ -113,7 +113,7 @@ EXAMPLES
     $ sf api request graphql --body example.txt --stream-to-file output.txt --include
 ```
 
-_See code: [src/commands/api/request/graphql.ts](https://github.com/salesforcecli/plugin-api/blob/1.3.5/src/commands/api/request/graphql.ts)_
+_See code: [src/commands/api/request/graphql.ts](https://github.com/salesforcecli/plugin-api/blob/1.3.6/src/commands/api/request/graphql.ts)_
 
 ## `sf api request rest [URL]`
 
@@ -125,7 +125,7 @@ USAGE
     GET|POST|PUT|PATCH|HEAD|DELETE|OPTIONS|TRACE] [-H key:value...] [-f file | -b file]
 
 ARGUMENTS
-  URL  Salesforce API endpoint
+  [URL]  Salesforce API endpoint
 
 FLAGS
   -H, --header=key:value...                  HTTP header in "key:value" format.
@@ -222,7 +222,7 @@ FLAG DESCRIPTIONS
     https://github.com/salesforcecli/plugin-api/tree/main/test/test-files/data-project.
 ```
 
-_See code: [src/commands/api/request/rest.ts](https://github.com/salesforcecli/plugin-api/blob/1.3.5/src/commands/api/request/rest.ts)_
+_See code: [src/commands/api/request/rest.ts](https://github.com/salesforcecli/plugin-api/blob/1.3.6/src/commands/api/request/rest.ts)_
 
 <!-- commandsstop -->
 
