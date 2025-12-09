@@ -61,6 +61,7 @@ sf plugins
 
 - [`sf api request graphql`](#sf-api-request-graphql)
 - [`sf api request rest [URL]`](#sf-api-request-rest-url)
+- [`sf api request soap URL`](#sf-api-request-soap-url)
 
 ## `sf api request graphql`
 
@@ -113,7 +114,7 @@ EXAMPLES
     $ sf api request graphql --body example.txt --stream-to-file output.txt --include
 ```
 
-_See code: [src/commands/api/request/graphql.ts](https://github.com/salesforcecli/plugin-api/blob/1.3.6/src/commands/api/request/graphql.ts)_
+_See code: [src/commands/api/request/graphql.ts](https://github.com/salesforcecli/plugin-api/blob/1.3.7-dev.0/src/commands/api/request/graphql.ts)_
 
 ## `sf api request rest [URL]`
 
@@ -222,7 +223,64 @@ FLAG DESCRIPTIONS
     https://github.com/salesforcecli/plugin-api/tree/main/test/test-files/data-project.
 ```
 
-_See code: [src/commands/api/request/rest.ts](https://github.com/salesforcecli/plugin-api/blob/1.3.6/src/commands/api/request/rest.ts)_
+_See code: [src/commands/api/request/rest.ts](https://github.com/salesforcecli/plugin-api/blob/1.3.7-dev.0/src/commands/api/request/rest.ts)_
+
+## `sf api request soap URL`
+
+Make an authenticated SOAP API request to a Salesforce org.
+
+```
+USAGE
+  $ sf api request soap URL -o <value> --body file [--flags-dir <value>] [--output-file file]
+
+ARGUMENTS
+  URL  SOAP API endpoint
+
+FLAGS
+  -o, --target-org=<value>  (required) Username or alias of the target org. Not required if the `target-org`
+                            configuration variable is already set.
+      --body=file           (required) File or XML content for the SOAP Body. Specify "-" to read from standard input.
+                            If passing a file, prefix the filename with '@'. The command will extract the SOAP Body
+                            content if you provide a full SOAP envelope, or use your content as-is if it's just the
+                            method call.
+      --output-file=file    File path to save the SOAP response. If not specified, the response is printed to stdout.
+
+GLOBAL FLAGS
+  --flags-dir=<value>  Import flag values from a directory.
+
+DESCRIPTION
+  Make an authenticated SOAP API request to a Salesforce org.
+
+  This command allows you to make SOAP API requests to Salesforce orgs. You provide the SOAP Body content (the method
+  call), and the command automatically wraps it in a complete SOAP envelope with authentication headers.
+
+  The command constructs a full SOAP envelope with:
+
+  - SOAP Header containing SessionHeader with your org's access token
+  - SOAP Body containing your provided XML content
+
+  For more information about the Salesforce SOAP API, see
+  https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_quickstart.htm.
+
+EXAMPLES
+  Make a SOAP request to get server timestamp using the Partner API:
+
+    $ sf api request soap /services/Soap/u/58.0/ --body '<getServerTimestamp/>' --target-org my-org
+
+  Read SOAP Body content from a file:
+
+    $ sf api request soap /services/Soap/u/58.0/ --body @soap-body.xml --target-org my-org
+
+  Save the SOAP response to a file:
+
+    $ sf api request soap /services/Soap/u/58.0/ --body '<getServerTimestamp/>' --target-org my-org --output-file \
+      response.xml
+
+  Pipe SOAP Body content from standard input:
+  $ echo '<getServerTimestamp/>' | sf api request soap /services/Soap/u/58.0/ --body - --target-org my-org
+```
+
+_See code: [src/commands/api/request/soap.ts](https://github.com/salesforcecli/plugin-api/blob/1.3.7-dev.0/src/commands/api/request/soap.ts)_
 
 <!-- commandsstop -->
 
