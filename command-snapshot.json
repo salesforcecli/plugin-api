@@ -14,5 +14,13 @@
     "flagChars": ["H", "S", "X", "b", "f", "i", "o"],
     "flags": ["body", "file", "flags-dir", "header", "include", "method", "stream-to-file", "target-org"],
     "plugin": "@salesforce/plugin-api"
+  },
+  {
+    "alias": [],
+    "command": "api:request:soap",
+    "flagAliases": [],
+    "flagChars": ["o"],
+    "flags": ["body", "flags-dir", "output-file", "target-org"],
+    "plugin": "@salesforce/plugin-api"
   }
 ]
