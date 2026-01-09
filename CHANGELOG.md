@@ -1,3 +1,9 @@
+## [1.3.7](https://github.com/salesforcecli/plugin-api/compare/1.3.6...1.3.7) (2026-01-09)
+
+### Bug Fixes
+
+- **deps:** bump @smithy/config-resolver from 4.3.3 to 4.4.5 ([04116fc](https://github.com/salesforcecli/plugin-api/commit/04116fc33d912f448ef9e66ce9a5a86055c7a78d))
+
 ## [1.3.6](https://github.com/salesforcecli/plugin-api/compare/1.3.5...1.3.6) (2025-12-05)
 
 ### Bug Fixes
