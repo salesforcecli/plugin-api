@@ -1,3 +1,9 @@
+## [1.3.10](https://github.com/salesforcecli/plugin-api/compare/1.3.9...1.3.10) (2026-02-12)
+
+### Bug Fixes
+
+- bump dependencies and skipLibCheck ([d660fb1](https://github.com/salesforcecli/plugin-api/commit/d660fb1fd7287bbea441077c7d26aff14e3d9f6a))
+
 ## [1.3.9](https://github.com/salesforcecli/plugin-api/compare/1.3.8...1.3.9) (2026-02-10)
 
 ### Bug Fixes
