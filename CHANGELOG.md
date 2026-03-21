@@ -1,3 +1,9 @@
+## [1.3.12](https://github.com/salesforcecli/plugin-api/compare/1.3.11...1.3.12) (2026-03-21)
+
+### Bug Fixes
+
+- **deps:** bump flatted from 3.3.3 to 3.4.2 ([cb52469](https://github.com/salesforcecli/plugin-api/commit/cb524692dc8d174b65f5caec5eb64263adec0def))
+
 ## [1.3.11](https://github.com/salesforcecli/plugin-api/compare/1.3.10...1.3.11) (2026-02-26)
 
 ### Bug Fixes
