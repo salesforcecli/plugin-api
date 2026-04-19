@@ -1,3 +1,9 @@
+## [1.3.20](https://github.com/salesforcecli/plugin-api/compare/1.3.19...1.3.20) (2026-04-19)
+
+### Bug Fixes
+
+- **deps:** bump @salesforce/core from 8.28.1 to 8.28.3 ([44b52ec](https://github.com/salesforcecli/plugin-api/commit/44b52ecf2a53127311679ad3de1adeb91abab85b))
+
 ## [1.3.19](https://github.com/salesforcecli/plugin-api/compare/1.3.18...1.3.19) (2026-04-17)
 
 ### Bug Fixes
