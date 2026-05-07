@@ -1,3 +1,9 @@
+## [1.3.25](https://github.com/salesforcecli/plugin-api/compare/1.3.24...1.3.25) (2026-05-07)
+
+### Bug Fixes
+
+- **deps:** bump basic-ftp from 5.3.0 to 5.3.1 ([736edd8](https://github.com/salesforcecli/plugin-api/commit/736edd8ea569918ae1747987ea05c00707dcab5b))
+
 ## [1.3.24](https://github.com/salesforcecli/plugin-api/compare/1.3.23...1.3.24) (2026-05-07)
 
 ### Bug Fixes
