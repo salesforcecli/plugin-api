@@ -1,3 +1,9 @@
+## [1.3.26](https://github.com/salesforcecli/plugin-api/compare/1.3.25...1.3.26) (2026-05-09)
+
+### Bug Fixes
+
+- **deps:** bump fast-uri from 3.1.0 to 3.1.2 ([2ec3010](https://github.com/salesforcecli/plugin-api/commit/2ec3010acd9559c0b3f577a2ae0c04876a71556c))
+
 ## [1.3.25](https://github.com/salesforcecli/plugin-api/compare/1.3.24...1.3.25) (2026-05-07)
 
 ### Bug Fixes
