@@ -1,3 +1,9 @@
+## [1.3.35](https://github.com/salesforcecli/plugin-api/compare/1.3.34...1.3.35) (2026-05-24)
+
+### Bug Fixes
+
+- **deps:** bump ws from 8.19.0 to 8.21.0 ([e19849a](https://github.com/salesforcecli/plugin-api/commit/e19849a22b7c0f8d0c3d860bb0daee8c8f4543d3))
+
 ## [1.3.34](https://github.com/salesforcecli/plugin-api/compare/1.3.33...1.3.34) (2026-05-24)
 
 ### Bug Fixes
