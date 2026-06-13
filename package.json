@@ -13,7 +13,7 @@
     "@salesforce/sf-plugins-core": "^12.2.24",
     "@salesforce/ts-types": "^2.0.12",
     "ansis": "^3.3.2",
-    "form-data": "^4.0.5",
+    "form-data": "^4.0.6",
     "got": "^13.0.0",
     "proxy-agent": "^6.5.0"
   },
