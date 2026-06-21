@@ -1,3 +1,9 @@
+## [1.3.43](https://github.com/salesforcecli/plugin-api/compare/1.3.42...1.3.43) (2026-06-21)
+
+### Bug Fixes
+
+- **deps:** bump @oclif/core from 4.11.4 to 4.11.7 ([44bcbb8](https://github.com/salesforcecli/plugin-api/commit/44bcbb84f7fb002ce728ec85d0683cad1c04edfd))
+
 ## [1.3.42](https://github.com/salesforcecli/plugin-api/compare/1.3.41...1.3.42) (2026-06-17)
 
 ### Bug Fixes
