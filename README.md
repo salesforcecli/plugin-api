@@ -113,7 +113,7 @@ EXAMPLES
     $ sf api request graphql --body example.txt --stream-to-file output.txt --include
 ```
 
-_See code: [src/commands/api/request/graphql.ts](https://github.com/salesforcecli/plugin-api/blob/2.0.0/src/commands/api/request/graphql.ts)_
+_See code: [src/commands/api/request/graphql.ts](https://github.com/salesforcecli/plugin-api/blob/2.0.1/src/commands/api/request/graphql.ts)_
 
 ## `sf api request rest [URL]`
 
@@ -222,7 +222,7 @@ FLAG DESCRIPTIONS
     https://github.com/salesforcecli/plugin-api/tree/main/test/test-files/data-project.
 ```
 
-_See code: [src/commands/api/request/rest.ts](https://github.com/salesforcecli/plugin-api/blob/2.0.0/src/commands/api/request/rest.ts)_
+_See code: [src/commands/api/request/rest.ts](https://github.com/salesforcecli/plugin-api/blob/2.0.1/src/commands/api/request/rest.ts)_
 
 <!-- commandsstop -->
 
