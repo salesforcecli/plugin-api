@@ -60,7 +60,6 @@ export class Rest extends SfCommand<void> {
   public static readonly summary = messages.getMessage('summary');
   public static readonly description = messages.getMessage('description');
   public static readonly examples = messages.getMessages('examples');
-  public static state = 'beta';
   public static enableJsonFlag = false;
   public static readonly flags = {
     'target-org': Flags.requiredOrg(),
@@ -122,7 +121,7 @@ export class Rest extends SfCommand<void> {
     // @ts-expect-error users _could_ put one of these in their file without knowing it's wrong - TS is smarter than users here :)
     if (!methodOptions.includes(method)) {
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      throw new SfError(`"${method}" must be one of ${methodOptions.join(', ')}`);
+      throw new SfError(`"${method as string}" must be one of ${methodOptions.join(', ')}`);
     }
     // body can be undefined;
     // if we have a --body @myfile.json, read the file
