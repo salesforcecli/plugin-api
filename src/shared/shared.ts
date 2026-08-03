@@ -23,6 +23,20 @@ import got from 'got';
 Messages.importMessagesDirectoryFromMetaUrl(import.meta.url);
 const messages = Messages.loadMessages('@salesforce/plugin-api', 'shared');
 
+export function redactError(error: unknown): unknown {
+  if (error instanceof Error && 'options' in error) {
+    const opts = error as Error & { options?: { headers?: Record<string, unknown> } };
+    if (opts.options?.headers) {
+      for (const key of Object.keys(opts.options.headers)) {
+        if (key.toLowerCase() === 'authorization') {
+          opts.options.headers[key] = '[REDACTED]';
+        }
+      }
+    }
+  }
+  return error;
+}
+
 export async function sendAndPrintRequest(options: {
   streamFile?: string;
   url: URL;
@@ -41,36 +55,40 @@ export async function sendAndPrintRequest(options: {
     // we just ensured it existed with the 'if'
     fileStream.on('finish', () => options.this.log(`File saved to ${options.streamFile!}`));
     fileStream.on('error', (error) => {
-      throw SfError.wrap(error);
+      throw SfError.wrap(redactError(error));
     });
     responseStream.on('error', (error) => {
-      throw SfError.wrap(error);
+      throw SfError.wrap(redactError(error));
     });
   } else {
-    const res = options.options.method
-      ? // default to 'POST' if not specified
-        await got(options.url, options.options)
-      : await got.post(options.url, options.options);
-    // Print HTTP response status and headers.
-    if (options.include) {
-      options.this.log(`HTTP/${res.httpVersion} ${res.statusCode}`);
-      Object.entries(res.headers).map(([header, value]) => {
-        options.this.log(
-          `${ansis.blue.bold(header)}: ${Array.isArray(value) ? value.join(',') : value ?? '<undefined>'}`
-        );
-      });
-    }
-
     try {
-      // Try to pretty-print JSON response.
-      options.this.styledJSON(JSON.parse(res.body) as AnyJson);
-    } catch (err) {
-      // If response body isn't JSON, just print it to stdout.
-      options.this.log(res.body);
-    }
+      const res = options.options.method
+        ? // default to 'POST' if not specified
+          await got(options.url, options.options)
+        : await got.post(options.url, options.options);
+      // Print HTTP response status and headers.
+      if (options.include) {
+        options.this.log(`HTTP/${res.httpVersion} ${res.statusCode}`);
+        Object.entries(res.headers).map(([header, value]) => {
+          options.this.log(
+            `${ansis.blue.bold(header)}: ${Array.isArray(value) ? value.join(',') : value ?? '<undefined>'}`
+          );
+        });
+      }
 
-    if (res.statusCode >= 400) {
-      process.exitCode = 1;
+      try {
+        // Try to pretty-print JSON response.
+        options.this.styledJSON(JSON.parse(res.body) as AnyJson);
+      } catch (err) {
+        // If response body isn't JSON, just print it to stdout.
+        options.this.log(res.body);
+      }
+
+      if (res.statusCode >= 400) {
+        process.exitCode = 1;
+      }
+    } catch (error) {
+      throw SfError.wrap(redactError(error));
     }
   }
 }
