@@ -121,7 +121,7 @@ export class Rest extends SfCommand<void> {
     // @ts-expect-error users _could_ put one of these in their file without knowing it's wrong - TS is smarter than users here :)
     if (!methodOptions.includes(method)) {
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      throw new SfError(`"${method as string}" must be one of ${methodOptions.join(', ')}`);
+      throw new SfError(`"${method}" must be one of ${methodOptions.join(', ')}`);
     }
     // body can be undefined;
     // if we have a --body @myfile.json, read the file
