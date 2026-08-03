@@ -37,13 +37,19 @@ export function redactError(error: unknown): unknown {
   return error;
 }
 
+export type ApiResponseResult = {
+  statusCode: number;
+  headers: Record<string, string | string[]>;
+  body: AnyJson | string;
+};
+
 export async function sendAndPrintRequest(options: {
   streamFile?: string;
   url: URL;
   options: Record<string, unknown>;
   include: boolean;
   this: SfCommand<unknown>;
-}): Promise<void> {
+}): Promise<ApiResponseResult | undefined> {
   if (options.streamFile) {
     const responseStream = options.options.method
       ? got.stream(options.url, options.options)
@@ -60,12 +66,15 @@ export async function sendAndPrintRequest(options: {
     responseStream.on('error', (error) => {
       throw SfError.wrap(redactError(error));
     });
+
+    return undefined;
   } else {
     try {
       const res = options.options.method
         ? // default to 'POST' if not specified
           await got(options.url, options.options)
         : await got.post(options.url, options.options);
+
       // Print HTTP response status and headers.
       if (options.include) {
         options.this.log(`HTTP/${res.httpVersion} ${res.statusCode}`);
@@ -76,17 +85,31 @@ export async function sendAndPrintRequest(options: {
         });
       }
 
+      let parsedBody: AnyJson | string;
       try {
-        // Try to pretty-print JSON response.
-        options.this.styledJSON(JSON.parse(res.body) as AnyJson);
+        parsedBody = JSON.parse(res.body) as AnyJson;
+        options.this.styledJSON(parsedBody);
       } catch (err) {
-        // If response body isn't JSON, just print it to stdout.
+        parsedBody = res.body;
         options.this.log(res.body);
       }
 
       if (res.statusCode >= 400) {
         process.exitCode = 1;
       }
+
+      const responseHeaders: Record<string, string | string[]> = {};
+      for (const [header, value] of Object.entries(res.headers)) {
+        if (value !== undefined) {
+          responseHeaders[header] = value;
+        }
+      }
+
+      return {
+        statusCode: res.statusCode,
+        headers: responseHeaders,
+        body: parsedBody,
+      };
     } catch (error) {
       throw SfError.wrap(redactError(error));
     }
