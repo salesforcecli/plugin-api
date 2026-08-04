@@ -1,3 +1,9 @@
+## [2.0.2](https://github.com/salesforcecli/plugin-api/compare/2.0.1...2.0.2) (2026-08-04)
+
+### Bug Fixes
+
+- **deps:** bump ip-address from 10.2.0 to 10.4.0 ([06b184c](https://github.com/salesforcecli/plugin-api/commit/06b184c330a5313b5c0fd1a616cd789bf47372bf))
+
 ## [2.0.1](https://github.com/salesforcecli/plugin-api/compare/2.0.0...2.0.1) (2026-08-02)
 
 ### Bug Fixes
