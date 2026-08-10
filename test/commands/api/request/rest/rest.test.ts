@@ -26,6 +26,7 @@ import nock = require('nock');
 import { stubUx } from '@salesforce/sf-plugins-core';
 import * as FormData from 'form-data';
 import { getBodyContents, getHeaders, PostmanSchema, Rest } from '../../../../../src/commands/api/request/rest.js';
+import { redactError } from '../../../../../src/shared/shared.js';
 
 describe('rest', () => {
   const $$ = new TestContext();
@@ -216,5 +217,93 @@ describe('rest', () => {
     await Rest.run(['/services/data/v56.0/limites', '--target-org', 'test@hub.com']);
 
     expect(uxStub.styledJSON.args[0][0]).to.deep.equal(orgLimitsResponse);
+  });
+
+  describe('token redaction on network errors', () => {
+    it('should not expose access token in error when request fails', async () => {
+      nock(testOrg.instanceUrl).get('/services/data/v56.0/limits').replyWithError('ECONNREFUSED');
+
+      try {
+        await Rest.run(['/services/data/v56.0/limits', '--target-org', 'test@hub.com']);
+        assert.fail('should have thrown');
+      } catch (e) {
+        const fullError = JSON.stringify(e, Object.getOwnPropertyNames(e));
+        expect(fullError).to.not.include(testOrg.accessToken);
+      }
+    });
+
+    it('should not expose access token in error cause when request fails', async () => {
+      nock(testOrg.instanceUrl).get('/services/data/v56.0/limits').replyWithError('connect ECONNREFUSED');
+
+      try {
+        await Rest.run(['/services/data/v56.0/limits', '--target-org', 'test@hub.com']);
+        assert.fail('should have thrown');
+      } catch (e) {
+        const err = e as Error;
+        const causeStr = JSON.stringify(err.cause, Object.getOwnPropertyNames(err.cause as object));
+        expect(causeStr).to.not.include(testOrg.accessToken);
+      }
+    });
+  });
+
+  describe('redactError', () => {
+    it('should redact Authorization header from error options', () => {
+      const fakeToken = '00Dxx0000001gPL!FAKE_TOKEN';
+      const error = new Error('request failed') as Error & { options: { headers: Record<string, string> } };
+      error.options = {
+        headers: {
+          Authorization: `Bearer ${fakeToken}`,
+          'Content-Type': 'application/json',
+        },
+      };
+
+      redactError(error);
+
+      expect(error.options.headers.Authorization).to.equal('[REDACTED]');
+      expect(error.options.headers['Content-Type']).to.equal('application/json');
+    });
+
+    it('should handle case-insensitive Authorization header', () => {
+      const error = new Error('request failed') as Error & { options: { headers: Record<string, string> } };
+      error.options = {
+        headers: {
+          authorization: 'Bearer secret123',
+        },
+      };
+
+      redactError(error);
+
+      expect(error.options.headers.authorization).to.equal('[REDACTED]');
+    });
+
+    it('should not redact non-sensitive headers', () => {
+      const error = new Error('request failed') as Error & { options: { headers: Record<string, string> } };
+      error.options = {
+        headers: {
+          Authorization: 'Bearer secret',
+          'Content-Type': 'application/json',
+          Accept: 'application/xml',
+        },
+      };
+
+      redactError(error);
+
+      expect(error.options.headers.Authorization).to.equal('[REDACTED]');
+      expect(error.options.headers['Content-Type']).to.equal('application/json');
+      expect(error.options.headers.Accept).to.equal('application/xml');
+    });
+
+    it('should be a no-op for errors without options', () => {
+      const error = new Error('plain error');
+      const result = redactError(error);
+      expect(result).to.equal(error);
+    });
+
+    it('should be a no-op for non-Error values', () => {
+      const str = 'string error';
+      expect(redactError(str)).to.equal(str);
+      expect(redactError(null)).to.equal(null);
+      expect(redactError(undefined)).to.equal(undefined);
+    });
   });
 });

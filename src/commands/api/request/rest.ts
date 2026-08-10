@@ -20,7 +20,7 @@ import { Flags, SfCommand } from '@salesforce/sf-plugins-core';
 import { Messages, Org, SFDX_HTTP_HEADERS, SfError } from '@salesforce/core';
 import { Args } from '@oclif/core';
 import FormData from 'form-data';
-import { includeFlag, sendAndPrintRequest, streamToFileFlag } from '../../../shared/shared.js';
+import { type ApiResponseResult, includeFlag, sendAndPrintRequest, streamToFileFlag } from '../../../shared/shared.js';
 
 Messages.importMessagesDirectoryFromMetaUrl(import.meta.url);
 const messages = Messages.loadMessages('@salesforce/plugin-api', 'rest');
@@ -56,12 +56,10 @@ export type PostmanSchema = {
   body: RawPostmanSchema | FormDataPostmanSchema;
 };
 
-export class Rest extends SfCommand<void> {
+export class Rest extends SfCommand<ApiResponseResult> {
   public static readonly summary = messages.getMessage('summary');
   public static readonly description = messages.getMessage('description');
   public static readonly examples = messages.getMessages('examples');
-  public static state = 'beta';
-  public static enableJsonFlag = false;
   public static readonly flags = {
     'target-org': Flags.requiredOrg(),
     include: includeFlag,
@@ -99,7 +97,7 @@ export class Rest extends SfCommand<void> {
     }),
   };
 
-  public async run(): Promise<void> {
+  public async run(): Promise<ApiResponseResult> {
     const { flags, args } = await this.parse(Rest);
 
     const org = flags['target-org'];
@@ -168,7 +166,8 @@ export class Rest extends SfCommand<void> {
       followRedirect: false,
     };
 
-    await sendAndPrintRequest({ streamFile, url, options, include: flags.include, this: this });
+    const result = await sendAndPrintRequest({ streamFile, url, options, include: flags.include, this: this });
+    return result ?? { statusCode: 0, headers: {}, body: '' };
   }
 }
 

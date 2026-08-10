@@ -19,16 +19,15 @@ import * as os from 'node:os';
 import { SfCommand, Flags } from '@salesforce/sf-plugins-core';
 import { Messages, Org, SFDX_HTTP_HEADERS } from '@salesforce/core';
 import { ProxyAgent } from 'proxy-agent';
-import { includeFlag, sendAndPrintRequest, streamToFileFlag } from '../../../shared/shared.js';
+import { type ApiResponseResult, includeFlag, sendAndPrintRequest, streamToFileFlag } from '../../../shared/shared.js';
 
 Messages.importMessagesDirectoryFromMetaUrl(import.meta.url);
 const messages = Messages.loadMessages('@salesforce/plugin-api', 'graphql');
 
-export default class Graphql extends SfCommand<void> {
+export default class Graphql extends SfCommand<ApiResponseResult> {
   public static readonly summary = messages.getMessage('summary');
   public static readonly description = messages.getMessage('description');
   public static readonly examples = messages.getMessages('examples');
-  public static readonly state = 'beta';
 
   public static readonly flags = {
     'target-org': Flags.requiredOrg(),
@@ -43,7 +42,7 @@ export default class Graphql extends SfCommand<void> {
     }),
   };
 
-  public async run(): Promise<void> {
+  public async run(): Promise<ApiResponseResult> {
     const { flags } = await this.parse(Graphql);
 
     const org = flags['target-org'];
@@ -69,6 +68,7 @@ export default class Graphql extends SfCommand<void> {
       followRedirect: false,
     };
 
-    await sendAndPrintRequest({ streamFile, url, options, include: flags.include, this: this });
+    const result = await sendAndPrintRequest({ streamFile, url, options, include: flags.include, this: this });
+    return result ?? { statusCode: 0, headers: {}, body: '' };
   }
 }
