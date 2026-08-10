@@ -113,7 +113,7 @@ EXAMPLES
     $ sf api request graphql --body example.txt --stream-to-file output.txt --include
 ```
 
-_See code: [src/commands/api/request/graphql.ts](https://github.com/salesforcecli/plugin-api/blob/2.0.7/src/commands/api/request/graphql.ts)_
+_See code: [src/commands/api/request/graphql.ts](https://github.com/salesforcecli/plugin-api/blob/2.0.8/src/commands/api/request/graphql.ts)_
 
 ## `sf api request rest [URL]`
 
@@ -121,7 +121,7 @@ Make an authenticated HTTP request using the Salesforce REST API.
 
 ```
 USAGE
-  $ sf api request rest [URL] -o <value> [--flags-dir <value>] [-i | -S Example: report.xlsx] [-X
+  $ sf api request rest [URL] -o <value> [--json] [--flags-dir <value>] [-i | -S Example: report.xlsx] [-X
     GET|POST|PUT|PATCH|HEAD|DELETE|OPTIONS|TRACE] [-H key:value...] [-f file | -b file]
 
 ARGUMENTS
@@ -143,6 +143,7 @@ FLAGS
 
 GLOBAL FLAGS
   --flags-dir=<value>  Import flag values from a directory.
+  --json               Format output as json.
 
 DESCRIPTION
   Make an authenticated HTTP request using the Salesforce REST API.
@@ -222,7 +223,7 @@ FLAG DESCRIPTIONS
     https://github.com/salesforcecli/plugin-api/tree/main/test/test-files/data-project.
 ```
 
-_See code: [src/commands/api/request/rest.ts](https://github.com/salesforcecli/plugin-api/blob/2.0.7/src/commands/api/request/rest.ts)_
+_See code: [src/commands/api/request/rest.ts](https://github.com/salesforcecli/plugin-api/blob/2.0.8/src/commands/api/request/rest.ts)_
 
 <!-- commandsstop -->
 

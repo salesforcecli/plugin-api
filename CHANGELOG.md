@@ -1,3 +1,9 @@
+## [2.0.8](https://github.com/salesforcecli/plugin-api/compare/2.0.7...2.0.8) (2026-08-10)
+
+### Bug Fixes
+
+- ga 'api request rest' command @W-23493730@ ([#194](https://github.com/salesforcecli/plugin-api/issues/194)) ([7d91085](https://github.com/salesforcecli/plugin-api/commit/7d910856f7184557a888c9b76fb1453d309c0997))
+
 ## [2.0.7](https://github.com/salesforcecli/plugin-api/compare/2.0.6...2.0.7) (2026-08-10)
 
 ### Bug Fixes
