@@ -130,7 +130,7 @@ export class Rest extends SfCommand<void> {
     // else read from --file's body
     let body;
     if (method !== 'GET') {
-      if (flags.body && flags.body.startsWith('@')) {
+      if (flags.body?.startsWith('@')) {
         // remove the '@' and read it
         body = readFileSync(flags.body.substring(1));
       } else if (flags.body) {
