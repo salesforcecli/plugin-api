@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 
 import { join } from 'node:path';
 import fs from 'node:fs';
@@ -51,7 +52,7 @@ describe('api:request:graphql NUT', () => {
       expect(Object.keys(parsed)).to.have.length;
 
       // @ts-expect-error graphql response, just access what we need without typing it
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+       
       expect(parsed.data!.uiapi.query.Account.edges.length).to.equal(1);
       expect(parsed.errors).to.deep.equal([]);
     });
@@ -67,7 +68,7 @@ describe('api:request:graphql NUT', () => {
       expect(Object.keys(parsed)).to.have.length;
 
       // @ts-expect-error graphql response, just access what we need without typing it
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+       
       expect(parsed.data!.uiapi.query.Account.edges.length).to.equal(1);
       expect(parsed.errors).to.deep.equal([]);
     });
@@ -82,7 +83,7 @@ describe('api:request:graphql NUT', () => {
       expect(Object.keys(parsed)).to.have.length;
 
       // @ts-expect-error graphql response, just access what we need without typing it
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+       
       expect(parsed.data!.uiapi.query.Address.edges.length).to.equal(0);
       expect(parsed.errors).to.deep.equal([]);
     });
@@ -94,7 +95,7 @@ describe('api:request:graphql NUT', () => {
       const parsed = JSON.parse(result) as Record<string, unknown>;
       expect(Object.keys(parsed)).to.have.length;
       // @ts-expect-error graphql response, just access what we need without typing it
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+       
       expect(parsed.data!.uiapi.query.Address.edges.length).to.equal(0);
       expect(parsed.errors).to.deep.equal([]);
     });
@@ -111,7 +112,7 @@ describe('api:request:graphql NUT', () => {
       >;
       expect(Object.keys(parsed)).to.have.length;
       // @ts-expect-error graphql response, just access what we need without typing it
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+       
       expect(parsed.data!.uiapi.query.Account.edges.length).to.equal(1);
       expect(parsed.errors).to.deep.equal([]);
     });
@@ -127,7 +128,7 @@ describe('api:request:graphql NUT', () => {
       >;
       expect(Object.keys(parsed)).to.have.length;
       // @ts-expect-error graphql response, just access what we need without typing it
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+       
       expect(parsed.data!.uiapi.query.Address.edges.length).to.equal(0);
       expect(parsed.errors).to.deep.equal([]);
     });

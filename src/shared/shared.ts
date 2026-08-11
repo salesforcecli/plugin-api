@@ -64,7 +64,7 @@ export async function sendAndPrintRequest(options: {
     try {
       // Try to pretty-print JSON response.
       options.this.styledJSON(JSON.parse(res.body) as AnyJson);
-    } catch (err) {
+    } catch {
       // If response body isn't JSON, just print it to stdout.
       options.this.log(res.body);
     }

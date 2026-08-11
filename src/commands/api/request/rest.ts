@@ -99,6 +99,7 @@ export class Rest extends SfCommand<void> {
     }),
   };
 
+  // eslint-disable-next-line complexity
   public async run(): Promise<void> {
     const { flags, args } = await this.parse(Rest);
 
@@ -158,7 +159,6 @@ export class Rest extends SfCommand<void> {
         ...SFDX_HTTP_HEADERS,
         Authorization: `Bearer ${
           // we don't care about apiVersion here, just need to get the access token.
-          // eslint-disable-next-line sf-plugin/get-connection-with-version
           org.getConnection().getConnectionOptions().accessToken!
         }`,
         ...headers,

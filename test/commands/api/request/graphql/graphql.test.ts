@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/* eslint-disable @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-require-imports */
 import fs from 'node:fs';
 import * as process from 'node:process';
 import path from 'node:path';
@@ -86,7 +87,7 @@ describe('graphql', () => {
 
     await Graphql.run(['--target-org', 'test@hub.com', '--body', 'standard.txt']);
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+     
     const output = stripAnsi(stdoutSpy!.args.at(0)!.at(0));
 
     expect(JSON.parse(output)).to.deep.equal(serverResponse);
@@ -99,7 +100,7 @@ describe('graphql', () => {
 
     // gives it a second to resolve promises and close streams before we start asserting
     await sleep(1000);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+     
     const output = stripAnsi(stdoutSpy!.args.at(0)!.at(0));
 
     expect(output).to.deep.equal('File saved to myOutput1.txt' + '\n');
