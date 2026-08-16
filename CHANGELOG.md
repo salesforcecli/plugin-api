@@ -1,3 +1,9 @@
+## [2.0.9](https://github.com/salesforcecli/plugin-api/compare/2.0.8...2.0.9) (2026-08-16)
+
+### Bug Fixes
+
+- **deps:** bump @salesforce/core from 9.1.0 to 9.1.2 ([3961030](https://github.com/salesforcecli/plugin-api/commit/396103074c64d5e6f987426bf18c563e7621d1c0))
+
 ## [2.0.8](https://github.com/salesforcecli/plugin-api/compare/2.0.7...2.0.8) (2026-08-10)
 
 ### Bug Fixes
