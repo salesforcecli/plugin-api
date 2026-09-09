@@ -1,0 +1,25 @@
+{
+  "src/commands/api/request/rest.ts": {
+    "complexity": {
+      "count": 1
+    }
+  },
+  "src/shared/shared.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "test/commands/api/request/graphql/graphql.test.ts": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 1
+    }
+  },
+  "test/commands/api/request/rest/rest.test.ts": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  }
+}

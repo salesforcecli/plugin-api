@@ -4,6 +4,7 @@
     "outDir": "lib",
     "rootDir": "src",
     "skipLibCheck": true,
+    "types": ["mocha"]
   },
   "include": ["./src/**/*.ts"]
 }

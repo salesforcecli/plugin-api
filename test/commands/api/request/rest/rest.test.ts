@@ -240,7 +240,7 @@ describe('rest', () => {
         assert.fail('should have thrown');
       } catch (e) {
         const err = e as Error;
-        const causeStr = JSON.stringify(err.cause, Object.getOwnPropertyNames(err.cause as object));
+        const causeStr = JSON.stringify(err.cause, Object.getOwnPropertyNames(err.cause));
         expect(causeStr).to.not.include(testOrg.accessToken);
       }
     });
