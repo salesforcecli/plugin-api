@@ -2,9 +2,6 @@
   "src/commands/api/request/rest.ts": {
     "complexity": {
       "count": 1
-    },
-    "sf-plugin/get-connection-with-version": {
-      "count": 1
     }
   },
   "src/shared/shared.ts": {
