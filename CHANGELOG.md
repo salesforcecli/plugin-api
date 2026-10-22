@@ -1,3 +1,9 @@
+## [2.0.20](https://github.com/salesforcecli/plugin-api/compare/2.0.19...2.0.20) (2026-10-22)
+
+### Bug Fixes
+
+- **deps:** bump markdown-it from 14.3.1 to 14.3.3 ([7d9f171](https://github.com/salesforcecli/plugin-api/commit/7d9f1716b25ba956a7027a14115de66ede4d0cd2))
+
 ## [2.0.19](https://github.com/salesforcecli/plugin-api/compare/2.0.18...2.0.19) (2026-10-18)
 
 ### Bug Fixes
