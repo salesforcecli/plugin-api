@@ -1,3 +1,9 @@
+## [2.0.24](https://github.com/salesforcecli/plugin-api/compare/2.0.23...2.0.24) (2026-10-26)
+
+### Bug Fixes
+
+- **deps:** bump zod from 4.3.6 to 4.6.7 ([ed6f483](https://github.com/salesforcecli/plugin-api/commit/ed6f483ca6528ba01827a10e850cd3b691e29ca5))
+
 ## [2.0.23](https://github.com/salesforcecli/plugin-api/compare/2.0.22...2.0.23) (2026-10-25)
 
 ### Bug Fixes
