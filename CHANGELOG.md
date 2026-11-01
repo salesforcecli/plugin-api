@@ -1,3 +1,9 @@
+## [2.0.26](https://github.com/salesforcecli/plugin-api/compare/2.0.25...2.0.26) (2026-11-01)
+
+### Bug Fixes
+
+- **deps:** bump brace-expansion from 1.1.12 to 1.1.21 ([5c00eab](https://github.com/salesforcecli/plugin-api/commit/5c00eab9ac0e1eb18bb9e955c00b04d6914e8725))
+
 ## [2.0.25](https://github.com/salesforcecli/plugin-api/compare/2.0.24...2.0.25) (2026-11-01)
 
 ### Bug Fixes
