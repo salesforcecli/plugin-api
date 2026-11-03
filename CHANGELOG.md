@@ -1,3 +1,10 @@
+## [2.0.28](https://github.com/salesforcecli/plugin-api/compare/2.0.27...2.0.28) (2026-11-03)
+
+### Bug Fixes
+
+- update md file ([8958c73](https://github.com/salesforcecli/plugin-api/commit/8958c739cb0eb6873e81d90cd8ce8884f6a7f240))
+- update readme ([c8ebad5](https://github.com/salesforcecli/plugin-api/commit/c8ebad560c02128d1eeb344593ea2cd64b847645))
+
 ## [2.0.27](https://github.com/salesforcecli/plugin-api/compare/2.0.26...2.0.27) (2026-11-01)
 
 ### Bug Fixes
