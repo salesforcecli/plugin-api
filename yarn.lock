@@ -1475,12 +1475,12 @@
   dependencies:
     "@salesforce/ts-types" "^2.0.12"
 
-"@salesforce/kit@^4.0.0", "@salesforce/kit@^4.0.8":
-  version "4.0.8"
-  resolved "https://registry.yarnpkg.com/@salesforce/kit/-/kit-4.0.8.tgz#7aefc6d515c68c2a839d302459dedef81974dffb"
-  integrity sha512-buPp7lWQNK6f5S/vCXwcgclUPZlfRw66E1aXAY/Uy/qMPlaajS4xmo58HY7ge2zUfOjfwpH1b0GUV5cQ5D9EAw==
+"@salesforce/kit@^4.0.0", "@salesforce/kit@^4.0.10", "@salesforce/kit@^4.0.8":
+  version "4.0.10"
+  resolved "https://registry.yarnpkg.com/@salesforce/kit/-/kit-4.0.10.tgz#1d85a4d6733f1e2edc0b7aa158117716dab92a5f"
+  integrity sha512-LXCswafab7AYmpaEvjHmpI3Ueg4dk9c/vFfHSEenVyx/dF1ABlxmf8kpVyox6iRBBh3RvM5/LkQMtXUv7iSd7w==
   dependencies:
-    "@salesforce/ts-types" "^3.2.2"
+    "@salesforce/ts-types" "^3.2.4"
 
 "@salesforce/plugin-command-reference@^3.1.147":
   version "3.1.147"
