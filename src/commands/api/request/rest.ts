@@ -125,7 +125,8 @@ export class Rest extends SfCommand<ApiResponseResult> {
     // body can be undefined;
     // if we have a --body @myfile.json, read the file
     // if we have a --body '{"key":"value"}' use that
-    // else read from --file's body
+    // else read from --file's body, if it has one
+    // with neither (or --body ''), send no body, e.g. for DELETE
     let body;
     if (method !== 'GET') {
       if (flags.body?.startsWith('@')) {
@@ -133,8 +134,8 @@ export class Rest extends SfCommand<ApiResponseResult> {
         body = readFileSync(flags.body.substring(1));
       } else if (flags.body) {
         body = flags.body;
-      } else if (!flags.body) {
-        body = getBodyContents(fileOptions?.body);
+      } else if (flags.body === undefined && fileOptions?.body) {
+        body = getBodyContents(fileOptions.body);
       }
     }
 

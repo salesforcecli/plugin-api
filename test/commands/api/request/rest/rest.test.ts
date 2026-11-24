@@ -207,6 +207,30 @@ describe('rest', () => {
     }
   });
 
+  it('should send a DELETE without a body when neither --body nor --file is given', async () => {
+    nock(testOrg.instanceUrl).delete('/services/data/v56.0/sobjects/Account/001', '').reply(204);
+
+    await Rest.run(['/services/data/v56.0/sobjects/Account/001', '--method', 'DELETE', '--target-org', 'test@hub.com']);
+
+    expect(nock.isDone()).to.be.true;
+  });
+
+  it('should send a DELETE without a body when --body is empty', async () => {
+    nock(testOrg.instanceUrl).delete('/services/data/v56.0/sobjects/Account/001', '').reply(204);
+
+    await Rest.run([
+      '/services/data/v56.0/sobjects/Account/001',
+      '--method',
+      'DELETE',
+      '--body',
+      '',
+      '--target-org',
+      'test@hub.com',
+    ]);
+
+    expect(nock.isDone()).to.be.true;
+  });
+
   it('should not follow redirects', async () => {
     nock(testOrg.instanceUrl)
       .get('/services/data/v56.0/limites')
